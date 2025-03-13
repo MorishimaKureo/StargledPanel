@@ -54,8 +54,8 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
                         ws.send(JSON.stringify({
                             type: "stats",
                             serverName,
-                            cpu: "0.00",
-                            ram: "0.00",
+                            cpu: "0",
+                            ram: "0",
                             disk: stats.disk // Keep the disk size unchanged
                         }));
                     });
@@ -77,8 +77,8 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
                         ws.send(JSON.stringify({
                             type: "stats",
                             serverName,
-                            cpu: "0.00",
-                            ram: "0.00",
+                            cpu: "0",
+                            ram: "0",
                             disk: stats.disk // Keep the disk size unchanged
                         }));
                     }
