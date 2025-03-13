@@ -3,9 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const WebSocket = require("ws");
 const Log = require("cat-loggr");
-const { startServer, serverProcesses, serverLogs, broadcastLog } = require("./modules/serverManager");
+const { startServer, stopServer, serverProcesses, serverLogs } = require("./modules/serverManager");
 const { getSystemStats } = require("./modules/systemStats");
-const { initializeWebSocket } = require("./modules/webSocket");
+const { initializeWebSocket, broadcastLog } = require("./modules/webSocket");
 
 const log = new Log();
 const app = express();
@@ -45,7 +45,7 @@ app.get("/logs/:name", (req, res) => {
 });
 
 // Initialize WebSocket server
-initializeWebSocket(wss);
+initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs, broadcastLog });
 
 server.listen(PORT, () => {
     log.info(`Server berjalan di http://localhost:${PORT}`);

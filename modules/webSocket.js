@@ -1,10 +1,10 @@
 const Log = require("cat-loggr");
-const { startServer, serverProcesses, serverLogs } = require("./serverManager");
+const WebSocket = require("ws"); // Import WebSocket
 const { getSystemStats } = require("./systemStats");
 
 const log = new Log();
 
-function initializeWebSocket(wss) {
+function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs, broadcastLog }) {
     wss.on("connection", (ws, req) => {
         log.info("Client WebSocket terhubung.");
 
@@ -29,7 +29,7 @@ function initializeWebSocket(wss) {
 
             switch (action) {
                 case "start":
-                    startServer(serverName, ws);
+                    startServer(serverName, ws, (serverName, message) => broadcastLog(wss, serverName, message));
                     break;
                 case "command":
                     if (serverProcesses[serverName]) {
@@ -37,22 +37,13 @@ function initializeWebSocket(wss) {
                     }
                     break;
                 case "stop":
-                    if (serverProcesses[serverName]) {
-                        serverProcesses[serverName].process.stdin.write("stop\n");
-                        serverProcesses[serverName].process.on("close", () => {
-                            delete serverProcesses[serverName];
-                            ws.send(JSON.stringify({ type: "status", message: "Server telah berhenti." }));
-                        });
-                    }
+                    stopServer(serverName, ws, (serverName, message) => broadcastLog(wss, serverName, message));
                     break;
                 case "restart":
                     if (serverProcesses[serverName]) {
                         ws.send(JSON.stringify({ type: "clear" })); // Clear console before restarting
-                        serverProcesses[serverName].process.stdin.write("stop\n");
-                        serverProcesses[serverName].process.on("close", () => {
-                            delete serverProcesses[serverName];
-                            startServer(serverName, ws);
-                        });
+                        stopServer(serverName, ws, (serverName, message) => broadcastLog(wss, serverName, message));
+                        startServer(serverName, ws, (serverName, message) => broadcastLog(wss, serverName, message));
                     }
                     break;
                 case "kill":
@@ -84,7 +75,7 @@ function initializeWebSocket(wss) {
 }
 
 // Fungsi untuk mengirim log ke semua client yang terhubung
-function broadcastLog(serverName, message) {
+function broadcastLog(wss, serverName, message) {
     wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(message));
@@ -92,4 +83,4 @@ function broadcastLog(serverName, message) {
     });
 }
 
-module.exports = { initializeWebSocket };
+module.exports = { initializeWebSocket, broadcastLog };

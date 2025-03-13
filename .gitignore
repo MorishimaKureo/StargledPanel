@@ -137,6 +137,7 @@ dist
 
 #servers files
 servers/test/cache
+servers/test/libraries
 servers/test/logs
 servers/test/plugins
 servers/test/versions
@@ -157,6 +158,7 @@ servers/test/banned-players.txt
 servers/test/server-icon.png
 servers/test/eula.txt
 servers/test2/cache
+servers/test2/libraries
 servers/test2/logs
 servers/test2/plugins
 servers/test2/versions
