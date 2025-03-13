@@ -23,7 +23,7 @@
     <div>
         <p>CPU Usage: <span id="cpu">0%</span></p>
         <p>RAM Usage: <span id="ram">0%</span></p>
-        <p>Disk Usage: <span id="disk">0%</span></p>
+        <p>Disk Usage: <span id="disk">0</span></p>
     </div>
     <button onclick="sendCommand('start')">Start</button>
     <button onclick="sendCommand('stop')">Stop</button>
@@ -56,7 +56,7 @@
                 if (data.type === "stats") {
                     document.getElementById("cpu").textContent = data.cpu + "%";
                     document.getElementById("ram").textContent = data.ram + "%";
-                    document.getElementById("disk").textContent = data.disk + " GB";
+                    document.getElementById("disk").textContent = data.disk + " MB";
                 }
                 if (data.type === "clear") {
                     clearConsole();

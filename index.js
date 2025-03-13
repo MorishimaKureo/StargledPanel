@@ -35,10 +35,12 @@ app.get("/server/:name", (req, res) => {
 });
 
 // Endpoint untuk mendapatkan log server
-app.get("/logs/:name", (req, res) => {
+app.get("/logs/:name", async (req, res) => {
     const serverName = req.params.name;
     if (serverLogs[serverName]) {
-        res.json({ logs: serverLogs[serverName] });
+        const serverPath = path.join(SERVERS_DIR, serverName);
+        const stats = await getSystemStats(serverPath);
+        res.json({ logs: serverLogs[serverName], stats });
     } else {
         res.status(404).json({ error: "Log tidak ditemukan untuk server ini." });
     }

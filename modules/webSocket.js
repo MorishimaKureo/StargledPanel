@@ -1,6 +1,7 @@
 const Log = require("cat-loggr");
 const WebSocket = require("ws"); // Import WebSocket
 const { getSystemStats } = require("./systemStats");
+const path = require("path");
 
 const log = new Log();
 
@@ -16,9 +17,18 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
             if (serverLogs[serverName]) {
                 ws.send(JSON.stringify({ type: "logs", logs: serverLogs[serverName] }));
             }
+            // Kirim ukuran folder server ke client yang baru terhubung
+            const serverPath = path.join(__dirname, "../servers", serverName);
+            getSystemStats(serverPath).then(stats => {
+                ws.send(JSON.stringify({
+                    type: "stats",
+                    serverName,
+                    ...stats
+                }));
+            });
         }
 
-        ws.on("message", (message) => {
+        ws.on("message", async (message) => {
             const data = JSON.parse(message);
             const { action, serverName, command } = data;
 
@@ -37,7 +47,18 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
                     }
                     break;
                 case "stop":
-                    stopServer(serverName, ws, (serverName, message) => broadcastLog(wss, serverName, message));
+                    stopServer(serverName, ws, async (serverName, message) => {
+                        broadcastLog(wss, serverName, message);
+                        const serverPath = path.join(__dirname, "../servers", serverName);
+                        const stats = await getSystemStats(serverPath);
+                        ws.send(JSON.stringify({
+                            type: "stats",
+                            serverName,
+                            cpu: "0.00",
+                            ram: "0.00",
+                            disk: stats.disk // Keep the disk size unchanged
+                        }));
+                    });
                     break;
                 case "restart":
                     if (serverProcesses[serverName]) {
@@ -51,6 +72,15 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
                         serverProcesses[serverName].process.kill();
                         delete serverProcesses[serverName];
                         ws.send(JSON.stringify({ type: "status", message: "Server telah dihentikan secara paksa." }));
+                        const serverPath = path.join(__dirname, "../servers", serverName);
+                        const stats = await getSystemStats(serverPath);
+                        ws.send(JSON.stringify({
+                            type: "stats",
+                            serverName,
+                            cpu: "0.00",
+                            ram: "0.00",
+                            disk: stats.disk // Keep the disk size unchanged
+                        }));
                     }
                     break;
                 default:
@@ -60,17 +90,22 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
 
         ws.on("close", () => {
             log.warn("Client WebSocket terputus.");
+            clearInterval(ws.statsInterval); // Clear the interval when the connection is closed
         });
 
-        setInterval(async () => {
-            const stats = await getSystemStats();
-            Object.keys(serverProcesses).forEach(serverName => {
-                ws.send(JSON.stringify({
-                    type: "stats",
-                    ...stats
-                }));
-            });
-        }, 5000);
+        ws.statsInterval = setInterval(async () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                for (const serverName of Object.keys(serverProcesses)) {
+                    const serverPath = path.join(__dirname, "../servers", serverName);
+                    const stats = await getSystemStats(serverPath);
+                    ws.send(JSON.stringify({
+                        type: "stats",
+                        serverName,
+                        ...stats
+                    }));
+                }
+            }
+        }, 1000); // Update interval to 1 second
     });
 }
 
