@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager - <%= serverName %></title>
+</head>
+<body>
+    <h1>File Manager: <%= serverName %></h1>
+
+    <% if (relativePath) { %>
+        <a href="/server/<%= serverName %>/files/<%= relativePath.split('/').slice(0, -1).join('/') %>">🔙 Kembali</a>
+    <% } else { %>
+        <a href="/server/<%= serverName %>">🔙 Kembali ke Console</a>
+    <% } %>
+
+    <h2>File List</h2>
+    <ul>
+        <% fileList.forEach(file => { %>
+            <li>
+                <% if (file.isDirectory) { %>
+                    📁 <a href="/server/<%= serverName %>/files/<%= relativePath ? relativePath + '/' : '' %><%= file.name %>"><%= file.name %></a>
+                    <form action="/server/<%= serverName %>/delete" method="POST" style="display:inline;">
+                        <input type="hidden" name="fileName" value="<%= file.name %>">
+                        <input type="hidden" name="folderPath" value="<%= relativePath %>">
+                        <input type="hidden" name="isDirectory" value="true">
+                        <button type="submit">Hapus Folder</button>
+                    </form>
+                <% } else { %>
+                    📄 <%= file.name %> 
+                    <form action="/server/<%= serverName %>/delete" method="POST" style="display:inline;">
+                        <input type="hidden" name="fileName" value="<%= file.name %>">
+                        <input type="hidden" name="folderPath" value="<%= relativePath %>">
+                        <button type="submit">Hapus</button>
+                    </form>
+                <% } %>
+            </li>
+        <% }) %>
+    </ul>
+
+    <h2>Upload File</h2>
+    <form action="/server/<%= serverName %>/upload/<%= relativePath %>" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

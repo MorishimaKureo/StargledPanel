@@ -18,7 +18,11 @@
     </style>
 </head>
 <body>
-    <h1>Console: <%= serverName %></h1>
+    <div class="topbar">
+        <h1>Console: <%= serverName %></h1>
+        <a href="/">Kembali ke Dashboard</a>
+        <a class="file" href="/server/<%= serverName %>/files">File Manager</a>
+    </div>
     <div id="console"></div>
     <div>
         <p>CPU Usage: <span id="cpu">0%</span></p>

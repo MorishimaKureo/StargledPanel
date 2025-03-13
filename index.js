@@ -6,6 +6,7 @@ const Log = require("cat-loggr");
 const { startServer, stopServer, serverProcesses, serverLogs } = require("./modules/serverManager");
 const { getSystemStats } = require("./modules/systemStats");
 const { initializeWebSocket, broadcastLog } = require("./modules/webSocket");
+const { setupFileManagerRoutes } = require("./modules/fileManager");
 
 const log = new Log();
 const app = express();
@@ -45,6 +46,9 @@ app.get("/logs/:name", async (req, res) => {
         res.status(404).json({ error: "Log tidak ditemukan untuk server ini." });
     }
 });
+
+// Endpoint untuk mengelola file di server
+setupFileManagerRoutes(app);
 
 // Initialize WebSocket server
 initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs, broadcastLog });
