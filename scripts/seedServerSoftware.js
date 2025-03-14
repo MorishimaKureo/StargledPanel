@@ -5,38 +5,43 @@ const axios = require("axios");
 const db = new sqlite3.Database('./databases/software.db');
 
 db.serialize(async () => {
-    db.run("CREATE TABLE IF NOT EXISTS server_software (id TEXT, name TEXT, start_script TEXT, environment TEXT, versions TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS server_software (id TEXT, name TEXT, start_script TEXT, environment TEXT, versions TEXT, download_url TEXT)");
 
     const softwareOptions = [
         {
             id: uuidv4(),
             name: "Minecraft Vanilla",
             start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
-            environment: JSON.stringify({})
+            environment: JSON.stringify({}),
+            download_url: "https://serverjar.org/download-version/vanilla/{version}"
         },
         {
             id: uuidv4(),
             name: "Paper",
-            start_script: "java -Xmx1024M -Xms1024M -jar paper.jar nogui",
-            environment: JSON.stringify({})
+            start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
+            environment: JSON.stringify({}),
+            download_url: "https://serverjar.org/download-version/paper/{version}"
         },
         {
             id: uuidv4(),
             name: "Purpur",
-            start_script: "java -Xmx1024M -Xms1024M -jar purpur.jar nogui",
-            environment: JSON.stringify({})
+            start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
+            environment: JSON.stringify({}),
+            download_url: "https://serverjar.org/download-version/purpur/{version}"
         },
         {
             id: uuidv4(),
             name: "Forge",
-            start_script: "java -Xmx1024M -Xms1024M -jar forge.jar nogui",
-            environment: JSON.stringify({})
+            start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
+            environment: JSON.stringify({}),
+            download_url: "https://serverjar.org/download-version/forge/{version}"
         },
         {
             id: uuidv4(),
             name: "Fabric",
-            start_script: "java -Xmx1024M -Xms1024M -jar fabric.jar nogui",
-            environment: JSON.stringify({})
+            start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
+            environment: JSON.stringify({}),
+            download_url: "https://serverjar.org/download-version/fabric/{version}"
         }
     ];
 
@@ -48,7 +53,7 @@ db.serialize(async () => {
         "Fabric": "https://meta.fabricmc.net/v2/versions/game"
     };
 
-    const stmt = db.prepare("INSERT INTO server_software VALUES (?, ?, ?, ?, ?)");
+    const stmt = db.prepare("INSERT INTO server_software VALUES (?, ?, ?, ?, ?, ?)");
     for (const option of softwareOptions) {
         try {
             const response = await axios.get(versionUrls[option.name]);
@@ -74,7 +79,7 @@ db.serialize(async () => {
 
             console.log(`Fetched versions for ${option.name}:`, versions); // Debugging information
 
-            stmt.run(option.id, option.name, option.start_script, option.environment, JSON.stringify(versions), (err) => {
+            stmt.run(option.id, option.name, option.start_script, option.environment, JSON.stringify(versions), option.download_url, (err) => {
                 if (err) {
                     console.error('Error inserting server software:', err.message);
                 } else {

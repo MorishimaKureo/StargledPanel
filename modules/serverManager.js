@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const Log = require("cat-loggr");
 const { v4: uuidv4 } = require("uuid");
-const { getServerSoftwareById } = require("./softwareDb");
+const { getServerSoftwareById, getDownloadUrl } = require("./softwareDb");
 const axios = require("axios");
 
 const log = new Log();
@@ -104,30 +104,45 @@ async function createServer(userId, serverName, softwareId, version) {
 
     if (!fs.existsSync(serverPath)) {
         fs.mkdirSync(serverPath);
-        // Store the server ID in a file inside the server's directory
         fs.writeFileSync(path.join(serverPath, "serverId.txt"), serverId);
-        // Get the start script and environment variables for the selected software
-        const software = await getServerSoftwareById(softwareId);
-        if (software) {
-            fs.writeFileSync(path.join(serverPath, "start.sh"), software.start_script);
-            fs.writeFileSync(path.join(serverPath, "environment.json"), software.environment);
-        }
-        // Download the appropriate server jar
-        const jarUrl = `https://download.example.com/${software.name.toLowerCase()}/${version}/server.jar`; // Replace with actual URL
-        console.log(`Downloading server jar from: ${jarUrl}`); // Debugging information
-        const jarPath = path.join(serverPath, "server.jar");
+    }
+
+    const software = await getServerSoftwareById(softwareId);
+    if (!software) {
+        throw new Error(`Software dengan ID ${softwareId} tidak ditemukan.`);
+    }
+
+    // Ambil URL unduhan dari database
+    const jarUrl = await getDownloadUrl(softwareId, version);
+    log.info(`Mengunduh server.jar dari: ${jarUrl}`);
+
+    if (!jarUrl) {
+        throw new Error(`URL unduhan tidak valid untuk ${software.name} versi ${version}`);
+    }
+
+    const tempJarPath = path.join(serverPath, "temp_server.jar");
+    const finalJarPath = path.join(serverPath, `${software.name.toLowerCase()}.jar`);
+
+    try {
         const response = await axios({
             url: jarUrl,
             method: 'GET',
             responseType: 'stream'
         });
-        response.data.pipe(fs.createWriteStream(jarPath));
+        response.data.pipe(fs.createWriteStream(tempJarPath));
+
         await new Promise((resolve, reject) => {
             response.data.on('end', resolve);
             response.data.on('error', reject);
         });
-        // Initialize the server directory with necessary files
-        fs.writeFileSync(path.join(serverPath, "server.properties"), ""); // Placeholder for server.properties
+
+        // Rename the downloaded jar file to the final name
+        fs.renameSync(tempJarPath, finalJarPath);
+
+        log.info(`Unduhan server.jar untuk ${serverName} selesai.`);
+    } catch (error) {
+        log.error(`Gagal mengunduh server.jar: ${error.message}`);
+        throw new Error(`Gagal mengunduh server.jar untuk ${software.name} versi ${version}`);
     }
 
     return serverId;
