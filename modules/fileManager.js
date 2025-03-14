@@ -1,9 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 const multer = require("multer");
+const Log = require("cat-loggr");
 
 const SERVERS_DIR = path.join(__dirname, "../servers");
 const upload = multer({ dest: "uploads/" });
+const log = new Log();
 
 function deleteFolderRecursive(folderPath) {
     if (fs.existsSync(folderPath)) {
@@ -26,8 +28,13 @@ function setupFileManagerRoutes(app) {
         const relativePath = req.params[0] || ""; // Ambil path setelah /files/
         const serverPath = path.join(SERVERS_DIR, serverName, relativePath);
 
+        log.info(`Accessing files for server: ${serverName}, relative path: ${relativePath}`);
+
         fs.readdir(serverPath, { withFileTypes: true }, (err, files) => {
-            if (err) return res.status(500).json({ error: "Gagal membaca direktori server." });
+            if (err) {
+                log.error(`Error reading directory: ${serverPath}`, err);
+                return res.status(500).json({ error: "Gagal membaca direktori server." });
+            }
 
             const directories = files.filter(file => file.isDirectory());
             const regularFiles = files.filter(file => !file.isDirectory());
