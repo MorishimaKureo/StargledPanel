@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Server Software</title>
+</head>
+<body>
+    <h1>Manage Server Software</h1>
+    <%- include('partials/adminSidebar') %>
+    <div class="content">
+        <form action="/admin/add-software" method="POST">
+            <input type="text" name="name" placeholder="Software Name" required>
+            <textarea name="startScript" placeholder="Start Script" required></textarea>
+            <textarea name="environment" placeholder="Environment Variables (JSON)" required></textarea>
+            <button type="submit">Add Software</button>
+        </form>
+        <h2>Software List</h2>
+        <% if (softwareOptions.length === 0) { %>
+            <p>No software options available.</p>
+        <% } else { %>
+            <ul>
+                <% softwareOptions.forEach(option => { %>
+                    <li><%= option.name %></li>
+                <% }); %>
+            </ul>
+        <% } %>
+    </div>
+</body>
+</html>

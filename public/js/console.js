@@ -1,14 +1,36 @@
-const serverName = "<%= serverName %>";
-const consoleDiv = document.getElementById("console");
+let consoleDiv; // Dideklarasikan secara global
 
+document.addEventListener("DOMContentLoaded", function () {
+    consoleDiv = document.getElementById("console");
+
+    if (!consoleDiv) {
+        console.error("Elemen #console tidak ditemukan! Pastikan ada <div id='console'> di HTML.");
+        return;
+    }
+
+    loadLogsFromServer();
+    connectWebSocket();
+});
+
+const serverName = window.SERVER_NAME;
 let ws;
 
 function connectWebSocket() {
+    if (!serverName) {
+        console.error("serverName tidak ditemukan.");
+        return;
+    }
+
     const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
     ws = new WebSocket(`${protocol}${window.location.host}?server=${serverName}`);
 
-    ws.onopen = () => console.log("WebSocket connected!");
+    ws.onopen = () => {
+        console.log("WebSocket connected!");
+        loadLogsFromStorage();  // Muat ulang log dari localStorage saat terhubung
+    };
+
     ws.onerror = (err) => console.error("WebSocket error:", err);
+
     ws.onclose = () => {
         console.warn("WebSocket disconnected. Mencoba menyambung ulang...");
         setTimeout(connectWebSocket, 3000);
@@ -16,17 +38,21 @@ function connectWebSocket() {
 
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
+        
         if (data.type === "output" || data.type === "error" || data.type === "status") {
             addConsoleLog(data.message);
         }
+
         if (data.type === "stats") {
             document.getElementById("cpu").textContent = data.cpu + "%";
             document.getElementById("ram").textContent = data.ram + "%";
             document.getElementById("disk").textContent = data.disk + " MB";
         }
+
         if (data.type === "clear") {
             clearConsole();
         }
+
         if (data.type === "logs") {
             data.logs.forEach(log => addConsoleLog(log));
         }
@@ -48,13 +74,19 @@ function sendCommand(action) {
 
     if (action === "restart") {
         addConsoleLog("Server sedang restart, harap tunggu...");
+        clearConsole(); // Hapus log hanya jika server restart
     }
 
     ws.send(JSON.stringify({ action, serverName, command }));
-    addConsoleLog(`> ${command || action}`); // Tambahkan log perintah yang dikirim
+    addConsoleLog(`> ${command || action}`);
 }
 
 function addConsoleLog(message) {
+    if (!consoleDiv) {
+        console.error("consoleDiv tidak ditemukan saat menambahkan log!");
+        return;
+    }
+
     const messageElement = document.createElement("div");
     messageElement.textContent = message;
     consoleDiv.appendChild(messageElement);
@@ -64,13 +96,13 @@ function addConsoleLog(message) {
 }
 
 function saveLogToStorage(message) {
-    let logs = JSON.parse(localStorage.getItem("consoleLogs")) || [];
+    let logs = JSON.parse(localStorage.getItem(`consoleLogs_${serverName}`)) || [];
     logs.push(message);
-    localStorage.setItem("consoleLogs", JSON.stringify(logs));
+    localStorage.setItem(`consoleLogs_${serverName}`, JSON.stringify(logs));
 }
 
 function loadLogsFromStorage() {
-    let logs = JSON.parse(localStorage.getItem("consoleLogs")) || [];
+    let logs = JSON.parse(localStorage.getItem(`consoleLogs_${serverName}`)) || [];
     logs.forEach(log => addConsoleLog(log));
 }
 
@@ -81,21 +113,45 @@ function handleEnter(event) {
 }
 
 function clearConsole() {
-    consoleDiv.innerHTML = "Menunggu output dari server...";
-    localStorage.removeItem("consoleLogs");
+    if (consoleDiv) {
+        consoleDiv.innerHTML = "";
+    }
+    localStorage.removeItem(`consoleLogs_${serverName}`);
 }
 
 function loadLogsFromServer() {
     fetch(`/logs/${serverName}`)
         .then(response => response.json())
         .then(data => {
-            if (data.logs) {
+            // Hapus semua pesan "Menunggu output dari server..."
+            const logs = Array.from(consoleDiv.children);
+            logs.forEach(log => {
+                if (log.textContent === "Menunggu output dari server...") {
+                    consoleDiv.removeChild(log);
+                }
+            });
+
+            // Cek apakah ada log baru
+            if (data.logs && data.logs.length > 0) {
+                // Hapus pesan lama jika ada log baru
+                clearConsole(false); // Jangan hapus storage, hanya hapus tampilan
                 data.logs.forEach(log => addConsoleLog(log));
+            } else {
+                // Tambahkan hanya satu pesan jika belum ada log
+                if (!consoleDiv.querySelector(".waiting-message")) {
+                    const waitingMessage = document.createElement("div");
+                    waitingMessage.textContent = "Menunggu output dari server...";
+                    waitingMessage.classList.add("waiting-message");
+                    consoleDiv.appendChild(waitingMessage);
+                }
             }
         })
         .catch(error => console.error("Gagal memuat log dari server:", error));
 }
 
-// Muat ulang log saat halaman dimuat
-loadLogsFromServer();
-connectWebSocket();
+function clearConsole(preserveStorage = true) {
+    consoleDiv.innerHTML = "";
+    if (!preserveStorage) {
+        localStorage.removeItem(`consoleLogs_${serverName}`);
+    }
+}

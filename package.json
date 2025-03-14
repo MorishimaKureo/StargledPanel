@@ -4,13 +4,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "create-user": "node ./scripts/seedUsers.js"
+    "create-user": "node ./scripts/seedUsers.js",
+    "seeds": "node ./scripts/seedServerSoftware.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "axios": "^1.8.3",
     "cat-loggr": "^1.2.2",
     "child_process": "^1.0.2",
     "ejs": "^3.1.10",
@@ -22,6 +24,7 @@
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "systeminformation": "^5.25.11",
+    "uuid": "^11.1.0",
     "ws": "^8.18.1"
   }
 }

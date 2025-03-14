@@ -16,7 +16,6 @@
             border: 1px solid #ccc;
         }
     </style>
-    <script src="/js/console.js" defer></script>
 </head>
 <body>
     <div class="topbar">
@@ -24,7 +23,7 @@
         <a href="/">Kembali ke Dashboard</a>
         <a class="file" href="/server/<%= serverName %>/files">File Manager</a>
     </div>
-    <div id="console">Menunggu output dari server...</div>
+    <div id="console"></div>
     <div>
         <p>CPU Usage: <span id="cpu">0%</span></p>
         <p>RAM Usage: <span id="ram">0%</span></p>
@@ -33,8 +32,11 @@
     <button onclick="sendCommand('start')">Start</button>
     <button onclick="sendCommand('stop')">Stop</button>
     <button onclick="sendCommand('restart')">Restart</button>
-    <button onclick="sendCommand('kill')">Kill</button>
     <input type="text" id="commandInput" placeholder="Ketik perintah..." onkeydown="handleEnter(event)">
     <button onclick="sendCommand('command')">Send</button>
 </body>
+<script>
+    window.SERVER_NAME = "<%= serverName %>";
+</script>
+<script src="/js/console.js"></script>
 </html>

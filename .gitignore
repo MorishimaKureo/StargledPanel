@@ -136,7 +136,8 @@ dist
 .pnp.*
 
 #databases
-users.db
+databases/users.db
+databases/software.db
 
 #servers files
 servers/test/cache

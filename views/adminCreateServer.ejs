@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Server</title>
+    <script>
+        async function updateVersions() {
+            const softwareSelect = document.querySelector('select[name="softwareId"]');
+            const versionSelect = document.querySelector('select[name="version"]');
+            const softwareId = softwareSelect.value;
+
+            try {
+                const response = await fetch(`/admin/get-versions/${softwareId}`);
+                const data = await response.json();
+
+                versionSelect.innerHTML = '';
+                data.versions.forEach(version => {
+                    const option = document.createElement('option');
+                    option.value = version;
+                    option.textContent = version;
+                    versionSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error fetching versions:', error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Create Server</h1>
+    <%- include('partials/adminSidebar') %>
+    <div class="content">
+        <form action="/admin/create-server" method="POST">
+            <input type="text" name="serverName" placeholder="Server Name" required>
+            <select name="softwareId" onchange="updateVersions()" required>
+                <% softwareOptions.forEach(option => { %>
+                    <option value="<%= option.id %>"><%= option.name %></option>
+                <% }); %>
+            </select>
+            <select name="version" required>
+                <!-- Versions will be populated based on selected software -->
+            </select>
+            <button type="submit">Create Server</button>
+        </form>
+    </div>
+</body>
+</html>

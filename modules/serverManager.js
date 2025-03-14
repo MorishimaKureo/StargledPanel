@@ -2,6 +2,9 @@ const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 const Log = require("cat-loggr");
+const { v4: uuidv4 } = require("uuid");
+const { getServerSoftwareById } = require("./softwareDb");
+const axios = require("axios");
 
 const log = new Log();
 const SERVERS_DIR = path.join(__dirname, "../servers");
@@ -35,6 +38,7 @@ function startServer(serverName, ws, broadcastLog) {
     const serverPath = path.join(SERVERS_DIR, serverName);
     const jarPath = path.join(serverPath, "server.jar");
     serverLogs[serverName] = [];
+    broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server baru dimulai
 
     if (serverProcesses[serverName]) {
         ws.send(JSON.stringify({ type: "error", message: "Server sudah berjalan!" }));
@@ -93,7 +97,43 @@ function restartServer(serverName, ws, broadcastLog) {
     }
 }
 
+// Fungsi untuk membuat server baru
+async function createServer(userId, serverName, softwareId, version) {
+    const serverId = uuidv4();
+    const serverPath = path.join(SERVERS_DIR, serverName);
+
+    if (!fs.existsSync(serverPath)) {
+        fs.mkdirSync(serverPath);
+        // Store the server ID in a file inside the server's directory
+        fs.writeFileSync(path.join(serverPath, "serverId.txt"), serverId);
+        // Get the start script and environment variables for the selected software
+        const software = await getServerSoftwareById(softwareId);
+        if (software) {
+            fs.writeFileSync(path.join(serverPath, "start.sh"), software.start_script);
+            fs.writeFileSync(path.join(serverPath, "environment.json"), software.environment);
+        }
+        // Download the appropriate server jar
+        const jarUrl = `https://example.com/${software.name.toLowerCase()}/${version}/server.jar`; // Replace with actual URL
+        const jarPath = path.join(serverPath, "server.jar");
+        const response = await axios({
+            url: jarUrl,
+            method: 'GET',
+            responseType: 'stream'
+        });
+        response.data.pipe(fs.createWriteStream(jarPath));
+        await new Promise((resolve, reject) => {
+            response.data.on('end', resolve);
+            response.data.on('error', reject);
+        });
+        // Initialize the server directory with necessary files
+        fs.writeFileSync(path.join(serverPath, "server.properties"), ""); // Placeholder for server.properties
+    }
+
+    return serverId;
+}
+
 module.exports = {
+    createServer,
     startServer,
     stopServer,
     restartServer,

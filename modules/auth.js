@@ -1,4 +1,4 @@
-const db = require("./db"); // Assume you have a module to interact with your database
+const db = require("./db");
 
 async function authenticateUser(username, password) {
     const user = await db.getUserByUsername(username);
@@ -16,4 +16,25 @@ function checkAdminRole(req, res, next) {
     }
 }
 
-module.exports = { authenticateUser, checkAdminRole };
+function isAuthenticated(req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect("/login");
+    }
+}
+
+function isAdmin(req, res, next) {
+    if (req.session.user && req.session.user.role === 'admin') {
+        next();
+    } else {
+        res.status(403).send("Access denied");
+    }
+}
+
+module.exports = {
+    authenticateUser,
+    checkAdminRole,
+    isAuthenticated,
+    isAdmin
+};
