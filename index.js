@@ -65,7 +65,7 @@ app.get("/", isAuthenticated, checkAdminRole, (req, res) => {
 });
 
 // Halaman console per server
-app.get("/server/:name", (req, res) => {
+app.get("/server/:name", isAuthenticated, (req, res) => {
     const serverName = req.params.name;
     res.render("console", { serverName });
 });
@@ -83,7 +83,7 @@ app.get("/logs/:name", async (req, res) => {
 });
 
 // Endpoint untuk mengelola file di server
-setupFileManagerRoutes(app);
+setupFileManagerRoutes(app, isAuthenticated);
 
 // Initialize WebSocket server
 initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs, broadcastLog });

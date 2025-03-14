@@ -21,9 +21,9 @@ function deleteFolderRecursive(folderPath) {
     }
 }
 
-function setupFileManagerRoutes(app) {
+function setupFileManagerRoutes(app, isAuthenticated) {
     // Endpoint untuk mendapatkan daftar file di server tertentu
-    app.get("/server/:name/files/*?", (req, res) => {
+    app.get("/server/:name/files/*?", isAuthenticated, (req, res) => {
         const serverName = req.params.name;
         const relativePath = req.params[0] || ""; 
         const serverPath = path.join(SERVERS_DIR, serverName, relativePath);
@@ -49,7 +49,7 @@ function setupFileManagerRoutes(app) {
     });
 
     // Endpoint untuk membuka file dalam editor
-    app.get("/server/:name/edit/*", (req, res) => {
+    app.get("/server/:name/edit/*", isAuthenticated, (req, res) => {
         const serverName = req.params.name;
         const relativePath = req.params[0];
         const filePath = path.join(SERVERS_DIR, serverName, relativePath);
@@ -63,7 +63,7 @@ function setupFileManagerRoutes(app) {
     });
 
     // Endpoint untuk menyimpan perubahan file
-    app.post("/server/:name/save/*", (req, res) => {
+    app.post("/server/:name/save/*", isAuthenticated, (req, res) => {
         const serverName = req.params.name;
         const relativePath = req.params[0];
         const filePath = path.join(SERVERS_DIR, serverName, relativePath);

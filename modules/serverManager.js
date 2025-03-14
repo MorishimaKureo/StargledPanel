@@ -12,6 +12,7 @@ function stopServer(serverName, ws, broadcastLog) {
     if (serverProcesses[serverName]) {
         serverProcesses[serverName].process.stdin.write("stop\n");
         serverProcesses[serverName].process.on("close", () => {
+            serverProcesses[serverName].process.kill(); // Ensure the background process is killed
             delete serverProcesses[serverName];
             serverLogs[serverName] = []; // Clear logs when server stops
             broadcastLog(serverName, { type: "clear" }); // Clear console when server stops
@@ -68,9 +69,39 @@ function startServer(serverName, ws, broadcastLog) {
     ws.send(JSON.stringify({ type: "status", message: "Server dimulai." }));
 }
 
+// Fungsi untuk membunuh server secara instan
+function killServer(serverName, ws, broadcastLog) {
+    if (serverProcesses[serverName]) {
+        serverProcesses[serverName].process.kill("SIGKILL"); // Instantly kill the process
+        delete serverProcesses[serverName];
+        serverLogs[serverName] = []; // Clear logs when server is killed
+        broadcastLog(serverName, { type: "clear" }); // Clear console when server is killed
+        broadcastLog(serverName, { type: "status", message: "Server dibunuh." });
+        ws.send(JSON.stringify({ type: "status", message: "Server telah dibunuh." }));
+    } else {
+        ws.send(JSON.stringify({ type: "error", message: "Server tidak berjalan." }));
+    }
+}
+
+// Fungsi untuk merestart server
+function restartServer(serverName, ws, broadcastLog) {
+    if (serverProcesses[serverName]) {
+        stopServer(serverName, ws, broadcastLog);
+        setTimeout(() => {
+            startServer(serverName, ws, broadcastLog);
+            serverLogs[serverName] = []; // Clear logs when server restarts
+            broadcastLog(serverName, { type: "clear" }); // Clear console when server restarts
+        }, 1000); // Wait for 1 second before restarting
+    } else {
+        ws.send(JSON.stringify({ type: "error", message: "Server tidak berjalan." }));
+    }
+}
+
 module.exports = {
     startServer,
     stopServer,
+    killServer,
+    restartServer,
     serverProcesses,
     serverLogs
 };
