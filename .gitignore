@@ -135,6 +135,9 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+#databases
+users.db
+
 #servers files
 servers/test/cache
 servers/test/libraries

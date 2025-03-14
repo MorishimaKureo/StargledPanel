@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "create-user": "node ./scripts/seedUsers.js"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +15,12 @@
     "child_process": "^1.0.2",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "express-sessions": "^1.0.6",
     "multer": "^1.4.5-lts.1",
     "os": "^0.1.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
     "systeminformation": "^5.25.11",
     "ws": "^8.18.1"
   }

@@ -7,6 +7,9 @@ const { startServer, stopServer, serverProcesses, serverLogs } = require("./modu
 const { getSystemStats } = require("./modules/systemStats");
 const { initializeWebSocket, broadcastLog } = require("./modules/webSocket");
 const { setupFileManagerRoutes } = require("./modules/fileManager");
+const session = require("express-session");
+const bodyParser = require("body-parser");
+const { authenticateUser, checkAdminRole } = require("./modules/auth");
 
 const log = new Log();
 const app = express();
@@ -19,8 +22,40 @@ const wss = new WebSocket.Server({ server });
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(session({
+    secret: 'your_secret_key',
+    resave: false,
+    saveUninitialized: true
+}));
+
+// Login route
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
+app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+    const user = await authenticateUser(username, password);
+    if (user) {
+        req.session.user = user;
+        res.redirect("/");
+    } else {
+        res.status(401).send("Login failed");
+    }
+});
+
+// Middleware to check if user is authenticated
+function isAuthenticated(req, res, next) {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect("/login");
+    }
+}
+
 // Endpoint untuk mendapatkan daftar server
-app.get("/", (req, res) => {
+app.get("/", isAuthenticated, checkAdminRole, (req, res) => {
     fs.readdir(SERVERS_DIR, (err, files) => {
         if (err) return res.status(500).json({ error: "Gagal membaca folder servers" });
 
