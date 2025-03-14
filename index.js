@@ -76,7 +76,7 @@ app.get("/", isAuthenticated, (req, res) => {
 // Halaman console per server
 app.get("/server/:id", isAuthenticated, (req, res) => {
     const serverId = req.params.id;
-    res.render("console", { serverId });
+    res.render("console", { serverName: serverId });
 });
 
 // Endpoint untuk mendapatkan log server

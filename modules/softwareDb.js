@@ -86,7 +86,7 @@ async function getSoftwareVersions(name) {
             versions = response.data.versions.map(version => version.version);
             break;
         case "Purpur":
-            versions = response.data.versions.map(version => version.version);
+            versions = response.data.versions;
             break;
         case "Forge":
             versions = Object.keys(response.data.promos).map(key => key.replace("-recommended", "").replace("-latest", ""));
@@ -108,11 +108,6 @@ async function getDownloadUrl(id, version) {
 
     const downloadUrl = software.download_url.replace("{version}", version);
     console.log(`Generated download URL: ${downloadUrl}`); // Debugging information
-
-    if (downloadUrl.includes("serverjar.org")) {
-        const response = await axios.get(downloadUrl);
-        return response.data.url;
-    }
 
     return downloadUrl;
 }

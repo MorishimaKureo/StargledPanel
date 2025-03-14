@@ -13,41 +13,41 @@ db.serialize(async () => {
             name: "Minecraft Vanilla",
             start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
             environment: JSON.stringify({}),
-            download_url: "https://serverjar.org/download-version/vanilla/{version}"
+            download_url: "https://launchermeta.mojang.com/v1/packages/{version}/server.jar"
         },
         {
             id: uuidv4(),
             name: "Paper",
             start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
             environment: JSON.stringify({}),
-            download_url: "https://serverjar.org/download-version/paper/{version}"
+            download_url: "https://papermc.io/api/v2/projects/paper/versions/{version}/builds/latest/downloads/paper-{version}.jar"
         },
         {
             id: uuidv4(),
             name: "Purpur",
             start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
             environment: JSON.stringify({}),
-            download_url: "https://serverjar.org/download-version/purpur/{version}"
+            download_url: "https://api.purpurmc.org/v2/purpur/{version}/latest/download"
         },
         {
             id: uuidv4(),
             name: "Forge",
             start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
             environment: JSON.stringify({}),
-            download_url: "https://serverjar.org/download-version/forge/{version}"
+            download_url: "https://files.minecraftforge.net/maven/net/minecraftforge/forge/{version}/forge-{version}-installer.jar"
         },
         {
             id: uuidv4(),
             name: "Fabric",
             start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
             environment: JSON.stringify({}),
-            download_url: "https://serverjar.org/download-version/fabric/{version}"
+            download_url: "https://meta.fabricmc.net/v2/versions/loader/{version}/fabric-server-mc.{version}.jar"
         }
     ];
 
     const versionUrls = {
         "Minecraft Vanilla": "https://launchermeta.mojang.com/mc/game/version_manifest.json",
-        "Paper": "https://qing762.is-a.dev/api/papermc",
+        "Paper": "https://api.papermc.io/v2/projects/paper",
         "Purpur": "https://api.purpurmc.org/v2/purpur",
         "Forge": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json",
         "Fabric": "https://meta.fabricmc.net/v2/versions/game"
@@ -64,7 +64,7 @@ db.serialize(async () => {
                     versions = response.data.versions.map(version => version.id);
                     break;
                 case "Paper":
-                    versions = response.data.versions;
+                    versions = response.data.versions.map(version => version.version);
                     break;
                 case "Purpur":
                     versions = response.data.versions;

@@ -121,7 +121,7 @@ async function createServer(userId, serverName, softwareId, version) {
     }
 
     const tempJarPath = path.join(serverPath, "temp_server.jar");
-    const finalJarPath = path.join(serverPath, `${software.name.toLowerCase()}.jar`);
+    const finalJarPath = path.join(serverPath, `server.jar`);
 
     try {
         const response = await axios({
@@ -135,6 +135,12 @@ async function createServer(userId, serverName, softwareId, version) {
             response.data.on('end', resolve);
             response.data.on('error', reject);
         });
+
+        // Verifikasi ukuran file JAR yang diunduh
+        const stats = fs.statSync(tempJarPath);
+        if (stats.size < 1024) { // Ukuran file JAR yang valid biasanya lebih besar dari 1KB
+            throw new Error("File JAR yang diunduh terlalu kecil, kemungkinan rusak.");
+        }
 
         // Rename the downloaded jar file to the final name
         fs.renameSync(tempJarPath, finalJarPath);

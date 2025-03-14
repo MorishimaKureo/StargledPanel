@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Vanilla 1.21.5-pre2 Server Jar | ServerJar.org</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+	<meta name="robots" content="noindex, nofollow" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="keywords" content="Minecraft server, Spigot download, Bukkit download, Purpur download, Vanilla Minecraft server, Minecraft, server software, minecraft, spigot, minecraft server, spigot server, minecraft spigot, minecraft server jar, spigot download, jar, jar's, trusted, mirror,">
+    <meta name="description" content="Download Vanilla Vanilla Server Jar for Minecraft Servers.">
+    <link href="https://fonts.cdnfonts.com/css/minecraft-4" rel="stylesheet">
+   <!-- <meta http-equiv="refresh" content="5;url=?= $downloadUrl ?">-->
+    <meta property="og:image" content="https://ServerJar.org/assets/img/android-chrome-192x192.png">
+    <meta property="twitter:image" content="https://ServerJar.org/android-chrome-192x192.png">
+    <meta property="og:image" content="https://ServerJar.org/assets/img/android-chrome-192x192.png">
+    <meta property="twitter:image" content="https://ServerJar.org/android-chrome-192x192.png">
+    <link rel="icon" href="/assets/img/favicon.ico">
+</head>
+<body>
+ 
+  
+ <style>
+        :root {
+            --primary-color: #3C8527;
+            --secondary-color: #5E9D35;
+            --text-color: #111111;
+            --background-color: #F0F0F0;
+            --dark-color: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Noto Sans', sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        .navbar {
+            background-color: var(--dark-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 36px;
+            color: #fff !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            font-weight: 400;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: #fff !important;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .jumbotron {
+            background: url('/assets/img/jumbotron.webp') no-repeat center center;
+            background-size: cover;
+            color: #fff;
+            padding: 4rem 0;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .jumbotron::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .jumbotron h1 {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .download-btn {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+            position: relative;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0px;
+            border: 1px solid rgb(60, 133, 39);
+            fill: rgb(60, 133, 39);filter: drop-shadow(rgb(82, 165, 53) 0px -6px 0px) drop-shadow(rgb(45, 100, 29) 0px 6px 0px);
+        }
+
+        .download-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .version {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.5rem;
+        }
+
+        .feature-icon {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-text {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .sponsor-section {
+            background-color: #fff;
+            padding: 3rem 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-section {
+            background: var(--dark-color);
+            color: #fff;
+            padding: 3rem 0;
+            border-radius: 10px;
+        }
+
+        .footer {
+            background-color: var(--dark-color);
+            color: #fff;
+            padding: 3rem 0;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        .pixelFont {
+            font-family: 'Minecraft', sans-serif;
+            font-weight: 200;
+            letter-spacing: 1px;
+        }
+        
+        .nav-link {
+            font-size: 18px !important;
+            font-weight: 600 !important;
+        }
+		
+		body {
+			background: url('/assets/img/bg-min.png');
+		}
+    </style>   
+   <style>
+       .version-row {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            filter: drop-shadow(#d6d6d6 0px -2px 0px) drop-shadow(#bfbfbf 0px 2px 0px);
+        }
+
+        .download-btn-version {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            font-weight: 700;
+            width: 60%;
+            height: 60px;
+			margin-left: 20%;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 0px;
+            border: 1px solid rgb(60, 133, 39);
+            fill: rgb(60, 133, 39);
+            filter: drop-shadow(rgb(82, 165, 53) 0px -2px 0px) drop-shadow(rgb(45, 100, 29) 0px 2px 0px);
+        }
+
+        .download-btn-version:hover {
+            background-color: var(--secondary-color);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+    </style>   
+
+   <nav class="navbar navbar-expand-lg navbar-dark fixed-top pb-4">
+        <div class="container">
+            <a class="navbar-brand pixelFont" href="/">SERVER<span style="color: var(--secondary-color)">JAR</span>.org</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Download
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+<div class="dropdown-menu">
+    <!-- Vanilla & Forks -->
+    <b>&nbsp; Vanilla & Forks</b>
+    <li><a class="dropdown-item" href="/download-version/vanilla">Vanilla</a></li>
+    <li><a class="dropdown-item" href="/download-version/paper">Paper</a></li>
+    <li><a class="dropdown-item" href="/download-version/pufferfish">Pufferfish</a></li>
+    <li><a class="dropdown-item" href="/download-version/spigot">Spigot</a></li>
+    <li><a class="dropdown-item" href="/download-version/bukkit">Bukkit</a></li>
+    <li><a class="dropdown-item" href="/download-version/folia">Folia</a></li>
+    <li><a class="dropdown-item" href="/download-version/purpur">Purpur</a></li>
+
+    <hr style="margin-top:4px; margin-bottom:4px">
+    <!-- Network -->
+    <b>&nbsp; Network</b>
+    <li><a class="dropdown-item" href="/download-version/waterfall">Waterfall</a></li>
+    <li><a class="dropdown-item" href="/download-version/velocity">Velocity</a></li>
+    <li><a class="dropdown-item" href="/download-version/bungeecord">BungeeCord</a></li>
+
+    <hr style="margin-top:4px; margin-bottom:4px">
+    <!-- Modding Server -->
+    <b>&nbsp; Modding Server</b>
+    <li><a class="dropdown-item" href="/download-version/fabric">Fabric</a></li>
+    <li><a class="dropdown-item" href="/download-version/forge">Forge</a></li>
+    <li><a class="dropdown-item" href="/download-version/neoforge">NeoForge</a></li>
+    <li><a class="dropdown-item" href="/download-version/quilt">Quilt</a></li>
+    
+    <hr style="margin-top:4px; margin-bottom:4px">
+    <!-- Hybrid -->
+    <b>&nbsp; Hybrid</b>
+    <li><a class="dropdown-item" href="/download-version/mohist">Mohist</a></li>
+    <li><a class="dropdown-item" href="/download-version/arclight">Arclight</a></li>
+    <li><a class="dropdown-item" href="/download-version/sponge">Sponge</a></li>
+</div>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="fab fa-discord"></i> Discord</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>    <div class="jumbotron text-center">
+        <div style="height:120px;"> </div>
+        <div class="container position-relative">
+            <h1 class="display-4 pixelFont">Vanilla 1.21.5-pre2</h1> 
+        </div>
+    </div>
+    <div class="container text-center" style="padding-bottom:70px;padding-top:50px;">
+    <a class="" href="https://mintservers.com/?utm_source=serverjar&utm_medium=banner&utm_content=main_banner">
+        <img src="https://advancedplugins.net/img/banner/mintservers.gif" class="img-fluid" style="width: 100%;max-width:728px;">
+    </a>
+
+    </br>
+    </br>
+    </br>
+    <h2>Downloading in <span id="countdown">5</span> seconds...</h2>
+    <p>Thank you for using ServerJar.org ❤️</p>
+    </br>
+    </br>    <a href="https://advancedplugins.net/serverjar">
+        <img src="https://i.imgur.com/UH9bm8w.png" class="img-fluid" style="max-width: 100%;">
+    </a>
+	
+</div>
+  <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>About Us</h5>
+                    <p>We provide the latest Minecraft server software for your gaming needs.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/">Downloads</a></li>
+                        <li><a href="/about">About</a></li>
+                        <li><a href="https://github.com/ServerJarOrg/Versions/issues">Report a problem</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contact Us</h5>
+                    <p>Email: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="582b2d2828372a2c182b3d2a2e3d2a32392a76372a3f">[email&#160;protected]</a></p>
+					
+					                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2024 serverjar.org. All rights reserved.</p>
+                <p><small>serverjar.org is not affiliated with or endorsed by Mojang, Microsoft, SpigotMC, Bukkit, CraftBukkit, or Minecraft. Minecraft is a trademark of Mojang Synergies AB.</small></p>
+				<p><small>All downloadable jars are provided by 3rd party sites. Content is never hosted or re-distributed.</small></p>
+            </div>
+        </div>
+    </footer>
+	
+	<!-- Google tag (gtag.js) -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script async src="https://www.googletagmanager.com/gtag/js?id=G-JTQRD9HY3D"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-JTQRD9HY3D');
+</script>    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let countdown = 5;
+        const countdownElement = document.getElementById('countdown');
+
+        function updateCountdown() {
+            countdownElement.textContent = countdown;
+            if (countdown > 0) {
+                countdown--;
+                setTimeout(updateCountdown, 1000);
+            } else {
+                document.querySelector('h2').textContent = 'Download starting...';
+            }
+        }
+
+        updateCountdown();
+    </script>
+	<script>
+        setTimeout(function() {
+        window.location.href = 'https://piston-data.mojang.com/v1/objects/7a6ec51f9e3095a8d2406042760d2989a1e8ad2b/server.jar';
+    }, 6000); // 5000 milliseconds = 5 seconds
+</script>
+	<script>
+        setTimeout(function() {
+        window.location.href = 'https://mintservers.com/order/minecraft?utm_source=serverjar&utm_medium=redirect&utm_campaign=homepage';
+    }, 8000); // 5000 milliseconds = 5 seconds
+</script>
+</body>
+</html>
