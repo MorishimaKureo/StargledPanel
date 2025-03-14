@@ -1,26 +1,32 @@
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const Log = require("cat-loggr");
 
+const log = new Log();
 const SERVERS_DIR = path.join(__dirname, "../servers");
 
-let serverProcesses = {}; // Menyimpan proses server yang berjalan
+let serverProcesses = {}; // Menyimpan proses server yang sedang berjalan
 let serverLogs = {}; // Menyimpan log untuk setiap server
 
 // Fungsi untuk menghentikan server
-function stopServer(serverName, ws, broadcastLog) {
+function stopServer(serverName, ws, broadcastLog, callback) {
     if (serverProcesses[serverName]) {
+        log.info(`Menghentikan server ${serverName}...`);
         serverProcesses[serverName].process.stdin.write("stop\n");
-        serverProcesses[serverName].process.on("close", () => {
-            serverProcesses[serverName].process.kill(); // Ensure the background process is killed
-            delete serverProcesses[serverName];
-            serverLogs[serverName] = []; // Clear logs when server stops
-            broadcastLog(serverName, { type: "clear" }); // Clear console when server stops
+        serverProcesses[serverName].process.on("exit", () => {
+            delete serverProcesses[serverName]; // Pastikan server dihapus lebih awal
+            serverLogs[serverName] = []; // Menghapus log ketika server berhenti
+            broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server berhenti
             broadcastLog(serverName, { type: "status", message: "Server berhenti." });
             ws.send(JSON.stringify({ type: "status", message: "Server telah berhenti." }));
+            setTimeout(() => {
+                if (callback) callback();
+            }, 2000); // Tunggu 2 detik sebelum callback dieksekusi
         });
     } else {
         ws.send(JSON.stringify({ type: "error", message: "Server tidak berjalan." }));
+        if (callback) callback();
     }
 }
 
@@ -28,6 +34,7 @@ function stopServer(serverName, ws, broadcastLog) {
 function startServer(serverName, ws, broadcastLog) {
     const serverPath = path.join(SERVERS_DIR, serverName);
     const jarPath = path.join(serverPath, "server.jar");
+    serverLogs[serverName] = [];
 
     if (serverProcesses[serverName]) {
         ws.send(JSON.stringify({ type: "error", message: "Server sudah berjalan!" }));
@@ -39,7 +46,8 @@ function startServer(serverName, ws, broadcastLog) {
         return;
     }
 
-    const serverProcess = spawn("java", ["-Xmx1024M", "-Xms1024M", "-jar", "server.jar", "nogui"], {
+    log.info(`Memulai server ${serverName}...`);
+    const serverProcess = spawn("java", ["-Xmx1024M", "-Xms1024M", "-jar", jarPath, "nogui"], {
         cwd: serverPath,
         shell: true
     });
@@ -59,39 +67,27 @@ function startServer(serverName, ws, broadcastLog) {
         broadcastLog(serverName, { type: "error", message });
     });
 
-    serverProcess.on("close", () => {
+    serverProcess.on("exit", () => {
         delete serverProcesses[serverName];
-        serverLogs[serverName] = []; // Clear logs when server stops
-        broadcastLog(serverName, { type: "clear" }); // Clear console when server stops
+        serverLogs[serverName] = []; // Menghapus log ketika server berhenti
+        broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server berhenti
         broadcastLog(serverName, { type: "status", message: "Server berhenti." });
     });
 
     ws.send(JSON.stringify({ type: "status", message: "Server dimulai." }));
 }
 
-// Fungsi untuk membunuh server secara instan
-function killServer(serverName, ws, broadcastLog) {
-    if (serverProcesses[serverName]) {
-        serverProcesses[serverName].process.kill("SIGKILL"); // Instantly kill the process
-        delete serverProcesses[serverName];
-        serverLogs[serverName] = []; // Clear logs when server is killed
-        broadcastLog(serverName, { type: "clear" }); // Clear console when server is killed
-        broadcastLog(serverName, { type: "status", message: "Server dibunuh." });
-        ws.send(JSON.stringify({ type: "status", message: "Server telah dibunuh." }));
-    } else {
-        ws.send(JSON.stringify({ type: "error", message: "Server tidak berjalan." }));
-    }
-}
-
 // Fungsi untuk merestart server
 function restartServer(serverName, ws, broadcastLog) {
     if (serverProcesses[serverName]) {
-        stopServer(serverName, ws, broadcastLog);
-        setTimeout(() => {
-            startServer(serverName, ws, broadcastLog);
-            serverLogs[serverName] = []; // Clear logs when server restarts
-            broadcastLog(serverName, { type: "clear" }); // Clear console when server restarts
-        }, 1000); // Wait for 1 second before restarting
+        log.info(`Memulai proses restart untuk server ${serverName}...`);
+        stopServer(serverName, ws, broadcastLog, () => {
+            log.info(`Server ${serverName} telah berhenti, menunggu sebelum restart...`);
+            setTimeout(() => {
+                log.info(`Memulai ulang server ${serverName}...`);
+                startServer(serverName, ws, broadcastLog);
+            }, 30000); // Tunggu  detik sebelum memulai server kembali
+        });
     } else {
         ws.send(JSON.stringify({ type: "error", message: "Server tidak berjalan." }));
     }
@@ -100,7 +96,6 @@ function restartServer(serverName, ws, broadcastLog) {
 module.exports = {
     startServer,
     stopServer,
-    killServer,
     restartServer,
     serverProcesses,
     serverLogs

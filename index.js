@@ -91,3 +91,5 @@ initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs,
 server.listen(PORT, () => {
     log.info(`Server berjalan di http://localhost:${PORT}`);
 });
+
+module.exports = { log };
