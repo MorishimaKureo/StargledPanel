@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit File - <%= relativePath %></title>
+</head>
+<body>
+    <h1>Edit File: <%= relativePath %></h1>
+    <form action="/server/<%= serverName %>/save/<%= relativePath %>" method="POST">
+        <textarea name="content" rows="20" cols="80"><%= content %></textarea><br>
+        <button type="submit">Save</button>
+    </form>
+    <a href="/server/<%= serverName %>/files/">🔙 Kembali ke File Manager</a>
+</body>
+</html>

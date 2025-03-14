@@ -27,7 +27,7 @@
                         <button type="submit">Hapus Folder</button>
                     </form>
                 <% } else { %>
-                    📄 <%= file.name %> 
+                    📄 <a href="/server/<%= serverName %>/edit/<%= relativePath ? relativePath + '/' : '' %><%= file.name %>"><%= file.name %></a> 
                     <form action="/server/<%= serverName %>/delete" method="POST" style="display:inline;">
                         <input type="hidden" name="fileName" value="<%= file.name %>">
                         <input type="hidden" name="folderPath" value="<%= relativePath %>">

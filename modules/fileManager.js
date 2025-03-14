@@ -25,7 +25,7 @@ function setupFileManagerRoutes(app) {
     // Endpoint untuk mendapatkan daftar file di server tertentu
     app.get("/server/:name/files/*?", (req, res) => {
         const serverName = req.params.name;
-        const relativePath = req.params[0] || ""; // Ambil path setelah /files/
+        const relativePath = req.params[0] || ""; 
         const serverPath = path.join(SERVERS_DIR, serverName, relativePath);
 
         log.info(`Accessing files for server: ${serverName}, relative path: ${relativePath}`);
@@ -48,32 +48,33 @@ function setupFileManagerRoutes(app) {
         });
     });
 
-    // Endpoint untuk mengunggah file ke server tertentu
-    app.post("/server/:name/upload/*?", upload.single("file"), (req, res) => {
+    // Endpoint untuk membuka file dalam editor
+    app.get("/server/:name/edit/*", (req, res) => {
         const serverName = req.params.name;
-        const relativePath = req.params[0] || "";
-        const serverPath = path.join(SERVERS_DIR, serverName, relativePath, req.file.originalname);
+        const relativePath = req.params[0];
+        const filePath = path.join(SERVERS_DIR, serverName, relativePath);
 
-        fs.rename(req.file.path, serverPath, (err) => {
-            if (err) return res.status(500).json({ error: "Gagal mengunggah file." });
-
-            res.redirect(`/server/${serverName}/files/${relativePath}`);
+        fs.readFile(filePath, "utf8", (err, content) => {
+            if (err) {
+                return res.status(500).json({ error: "Gagal membuka file." });
+            }
+            res.render("editFile", { serverName, relativePath, content });
         });
     });
 
-    // Endpoint untuk menghapus file atau folder di server tertentu
-    app.post("/server/:name/delete", (req, res) => {
-        const { fileName, folderPath, isDirectory } = req.body;
+    // Endpoint untuk menyimpan perubahan file
+    app.post("/server/:name/save/*", (req, res) => {
         const serverName = req.params.name;
-        const targetPath = path.join(SERVERS_DIR, serverName, folderPath || "", fileName);
+        const relativePath = req.params[0];
+        const filePath = path.join(SERVERS_DIR, serverName, relativePath);
+        const newContent = req.body.content;
 
-        if (isDirectory === "true") {
-            deleteFolderRecursive(targetPath);
-        } else {
-            fs.unlinkSync(targetPath);
-        }
-
-        res.redirect(`/server/${serverName}/files/${folderPath || ""}`);
+        fs.writeFile(filePath, newContent, "utf8", (err) => {
+            if (err) {
+                return res.status(500).json({ error: "Gagal menyimpan file." });
+            }
+            res.redirect(`/server/${serverName}/files/${relativePath.split('/').slice(0, -1).join('/')}`);
+        });
     });
 }
 
