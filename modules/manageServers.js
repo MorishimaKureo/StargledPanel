@@ -34,8 +34,10 @@ router.get("/admin/get-versions/:softwareId", isAuthenticated, isAdmin, async (r
 
     try {
         const versions = await getSoftwareVersions(software.name);
+        console.log(`Fetched versions for ${software.name}:`, versions); // Debugging information
         res.json({ versions });
     } catch (err) {
+        console.error(`Error fetching versions for ${software.name}:`, err.message); // Debugging information
         res.status(500).send("Error fetching versions: " + err.message);
     }
 });

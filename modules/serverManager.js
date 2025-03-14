@@ -113,7 +113,8 @@ async function createServer(userId, serverName, softwareId, version) {
             fs.writeFileSync(path.join(serverPath, "environment.json"), software.environment);
         }
         // Download the appropriate server jar
-        const jarUrl = `https://example.com/${software.name.toLowerCase()}/${version}/server.jar`; // Replace with actual URL
+        const jarUrl = `https://download.example.com/${software.name.toLowerCase()}/${version}/server.jar`; // Replace with actual URL
+        console.log(`Downloading server jar from: ${jarUrl}`); // Debugging information
         const jarPath = path.join(serverPath, "server.jar");
         const response = await axios({
             url: jarUrl,

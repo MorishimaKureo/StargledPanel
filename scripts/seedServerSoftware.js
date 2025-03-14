@@ -72,6 +72,8 @@ db.serialize(async () => {
                     break;
             }
 
+            console.log(`Fetched versions for ${option.name}:`, versions); // Debugging information
+
             stmt.run(option.id, option.name, option.start_script, option.environment, JSON.stringify(versions), (err) => {
                 if (err) {
                     console.error('Error inserting server software:', err.message);

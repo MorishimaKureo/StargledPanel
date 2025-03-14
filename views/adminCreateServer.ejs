@@ -21,10 +21,15 @@
                     option.textContent = version;
                     versionSelect.appendChild(option);
                 });
+                console.log(`Versions for software ID ${softwareId}:`, data.versions); // Debugging information
             } catch (error) {
                 console.error('Error fetching versions:', error);
             }
         }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            updateVersions();
+        });
     </script>
 </head>
 <body>
