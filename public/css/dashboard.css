@@ -14,6 +14,39 @@ body {
     min-height: 100vh;
     background: linear-gradient(to right, #667eea, #764ba2);
     color: white;
+    perspective: 1000px;
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+/* Animasi Fade In */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Animasi masuk (melayang dari depan + fade-in) */
+@keyframes flyIn {
+    from {
+        opacity: 0;
+        transform: translateZ(-300px);
+    }
+    to {
+        opacity: 1;
+        transform: translateZ(0);
+    }
+}
+
+/* Animasi keluar (melayang ke depan + fade-out) */
+@keyframes flyOut {
+    to {
+        opacity: 0;
+        transform: translateZ(300px);
+    }
 }
 
 /* Container */
@@ -24,12 +57,12 @@ body {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 400px;
+    animation: flyIn 0.8s ease-out;
 }
 
-/* Title */
-h1 {
-    font-weight: 600;
-    margin-bottom: 1rem;
+/* Efek keluar saat halaman berubah */
+body.fade-out .container {
+    animation: flyOut 0.5s ease-out forwards;
 }
 
 /* Admin Button */
@@ -48,12 +81,6 @@ h1 {
     background: #357ab7;
 }
 
-/* No Server Message */
-.no-server {
-    font-size: 14px;
-    opacity: 0.8;
-}
-
 /* Server List */
 .server-list {
     list-style: none;
@@ -67,13 +94,6 @@ h1 {
     margin: 10px 0;
     padding: 12px;
     border-radius: 5px;
-    transition: 0.3s;
-}
-
-.server-item a {
-    text-decoration: none;
-    color: white;
-    font-weight: 500;
     transition: 0.3s;
 }
 
