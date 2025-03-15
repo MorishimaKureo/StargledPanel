@@ -65,7 +65,7 @@ router.post("/admin/manage-servers/delete-server", isAuthenticated, isAdmin, (re
     const serverPath = path.join(SERVERS_DIR, serverName);
 
     if (fs.existsSync(serverPath)) {
-        fs.rmdirSync(serverPath, { recursive: true });
+        fs.rmSync(serverPath, { recursive: true });
         res.redirect("/admin/manage-servers");
     } else {
         res.status(404).send("Server tidak ditemukan");

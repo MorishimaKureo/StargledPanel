@@ -22,7 +22,9 @@ function connectWebSocket() {
     }
 
     const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
-    ws = new WebSocket(`${protocol}${window.location.host}?server=${serverName}`);
+    const wsUrl = `${protocol}${window.location.host}/ws?server=${serverName}`;
+    console.log(`Connecting to WebSocket at ${wsUrl}`); // Debugging information
+    ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
         console.log("WebSocket connected!");
@@ -155,3 +157,22 @@ function clearConsole(preserveStorage = true) {
         localStorage.removeItem(`consoleLogs_${serverName}`);
     }
 }
+
+// Tambahkan JavaScript dari console.ejs
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+const updateConsole = debounce((message) => {
+    requestAnimationFrame(() => {
+        const consoleElement = document.getElementById('console');
+        const newMessage = document.createElement('div');
+        newMessage.textContent = message;
+        consoleElement.appendChild(newMessage);
+        consoleElement.scrollTop = consoleElement.scrollHeight;
+    });
+}, 100);

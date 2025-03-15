@@ -3,26 +3,17 @@ const fs = require("fs").promises;
 const path = require("path");
 
 async function getDirectorySize(directory) {
-    try {
-        const files = await fs.readdir(directory);
-        const stats = await Promise.all(files.map(async file => {
-            const filePath = path.join(directory, file);
-            const stat = await fs.stat(filePath);
-            if (stat.isDirectory()) {
-                return getDirectorySize(filePath);
-            } else {
-                return stat.size;
-            }
-        }));
-        return stats.reduce((acc, size) => acc + size, 0);
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            console.error(`Directory not found: ${directory}`);
-            return 0;
+    const files = await fs.readdir(directory);
+    const stats = await Promise.all(files.map(async file => {
+        const filePath = path.join(directory, file);
+        const stat = await fs.stat(filePath);
+        if (stat.isDirectory()) {
+            return getDirectorySize(filePath);
         } else {
-            throw error;
+            return stat.size;
         }
-    }
+    }));
+    return stats.reduce((acc, size) => acc + size, 0);
 }
 
 async function getSystemStats(serverPath) {

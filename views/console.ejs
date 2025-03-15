@@ -35,8 +35,6 @@
     <input type="text" id="commandInput" placeholder="Ketik perintah..." onkeydown="handleEnter(event)">
     <button onclick="sendCommand('command')">Send</button>
 </body>
-<script>
-    window.SERVER_NAME = "<%= serverName %>";
-</script>
 <script src="/js/console.js"></script>
+<script>window.SERVER_NAME = "<%= serverName %>";</script>
 </html>

@@ -138,6 +138,7 @@ async function createServer(userId, serverName, softwareId, version) {
 
         // Verifikasi ukuran file JAR yang diunduh
         const stats = fs.statSync(tempJarPath);
+        log.info(`Ukuran file JAR yang diunduh: ${stats.size} bytes`);
         if (stats.size < 1024) { // Ukuran file JAR yang valid biasanya lebih besar dari 1KB
             throw new Error("File JAR yang diunduh terlalu kecil, kemungkinan rusak.");
         }
