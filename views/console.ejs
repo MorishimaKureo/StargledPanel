@@ -36,6 +36,8 @@
     <button onclick="sendCommand('command')">Send</button>
 </body>
 <script src="/js/console.js"></script>
-<script>window.SERVER_NAME = "<%= serverName %>";
+<script>
+    window.SERVER_NAME = "<%= serverName %>";
+    console.log("Server name set to:", window.SERVER_NAME); // Debugging information
 </script>
 </html>

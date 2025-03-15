@@ -21,7 +21,7 @@ function connectWebSocket() {
         return;
     }
 
-    const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+    const protocol = window.location.protocol === "https:" ? "wss://" : "ws://"; // Define the protocol variable
     const wsUrl = `${protocol}${window.location.host}/ws?server=${serverName}`;
     console.log(`Connecting to WebSocket at ${wsUrl}`); // Debugging information
     ws = new WebSocket(wsUrl);
@@ -123,6 +123,11 @@ function clearConsole() {
 }
 
 function loadLogsFromServer() {
+    if (!serverName) {
+        console.error("serverName tidak ditemukan.");
+        return;
+    }
+
     fetch(`/logs/${serverName}`)
         .then(response => response.json())
         .then(data => {
@@ -196,3 +201,5 @@ function updateStats(stats) {
     ramElement.textContent = `${stats.ram}%`;
     diskElement.textContent = `${stats.disk} MB`;
 }
+
+console.log("Connecting WebSocket to:", `${window.location.protocol === "https:" ? "wss://" : "ws://"}${window.location.host}/ws?server=${serverName}`);
