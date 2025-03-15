@@ -16,6 +16,13 @@ db.serialize(() => {
             download_url TEXT
         )
     `);
+    db.run(`
+        CREATE TABLE IF NOT EXISTS software_versions (
+            software_id TEXT,
+            version TEXT,
+            FOREIGN KEY (software_id) REFERENCES server_software(id)
+        )
+    `);
 });
 
 /**
@@ -32,6 +39,26 @@ async function addServerSoftware(id, name, startScript, environment, downloadUrl
                 reject(err);
             } else {
                 resolve({ id, name, startScript, environment, downloadUrl });
+            }
+            stmt.finalize();
+        });
+    });
+}
+
+/**
+ * Menambahkan versi untuk software server.
+ */
+async function addSoftwareVersion(softwareId, version) {
+    return new Promise((resolve, reject) => {
+        const stmt = db.prepare(`
+            INSERT INTO software_versions (software_id, version)
+            VALUES (?, ?)
+        `);
+        stmt.run(softwareId, version, (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve({ softwareId, version });
             }
             stmt.finalize();
         });
@@ -63,42 +90,15 @@ async function getServerSoftwareById(id) {
 }
 
 /**
- * Mengambil daftar versi dari API eksternal berdasarkan nama software.
+ * Mengambil daftar versi dari database berdasarkan ID software.
  */
-async function getSoftwareVersions(name) {
-    const versionUrls = {
-        "Minecraft Vanilla": "https://launchermeta.mojang.com/mc/game/version_manifest.json",
-        "Paper": "https://api.papermc.io/v2/projects/paper",
-        "Purpur": "https://api.purpurmc.org/v2/purpur",
-        "Forge": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json",
-        "Fabric": "https://meta.fabricmc.net/v2/versions/game"
-    };
-
-    const url = versionUrls[name];
-    if (!url) throw new Error(`No version URL found for software: ${name}`);
-
-    const response = await axios.get(url);
-    let versions = [];
-
-    switch (name) {
-        case "Minecraft Vanilla":
-            versions = response.data.versions.map(version => version.id);
-            break;
-        case "Paper":
-            versions = response.data.versions.map(version => version.version);
-            break;
-        case "Purpur":
-            versions = response.data.versions;
-            break;
-        case "Forge":
-            versions = Object.keys(response.data.promos).map(key => key.replace("-recommended", "").replace("-latest", ""));
-            break;
-        case "Fabric":
-            versions = response.data.map(version => version.version);
-            break;
-    }
-
-    return versions;
+async function getSoftwareVersions(softwareId) {
+    return new Promise((resolve, reject) => {
+        db.all("SELECT version FROM software_versions WHERE software_id = ?", [softwareId], (err, rows) => {
+            if (err) reject(err);
+            else resolve(rows.map(row => row.version));
+        });
+    });
 }
 
 /**
@@ -116,6 +116,7 @@ async function getDownloadUrl(id, version) {
 
 module.exports = {
     addServerSoftware,
+    addSoftwareVersion,
     getServerSoftware,
     getServerSoftwareById,
     getSoftwareVersions,

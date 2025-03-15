@@ -2,7 +2,7 @@ const express = require("express");
 const fs = require("fs"); // Add this line
 const path = require("path"); // Add this line
 const { isAuthenticated, isAdmin } = require("../modules/auth");
-const { addServerSoftware, getServerSoftware } = require("../modules/softwareDb");
+const { addServerSoftware, getServerSoftware, getSoftwareVersions, getServerSoftwareById } = require("../modules/softwareDb");
 const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
@@ -44,6 +44,22 @@ router.get("/admin/manage-servers", isAuthenticated, isAdmin, async (req, res) =
 router.get("/admin/create-server", isAuthenticated, isAdmin, async (req, res) => {
     const softwareOptions = await getServerSoftware();
     res.render("adminCreateServer", { softwareOptions });
+});
+
+// Endpoint to fetch versions for a specific software
+router.get("/admin/get-versions/:softwareId", isAuthenticated, isAdmin, async (req, res) => {
+    const softwareId = req.params.softwareId;
+    const software = await getServerSoftwareById(softwareId);
+    if (!software) {
+        return res.status(404).send("Software not found");
+    }
+
+    try {
+        const versions = await getSoftwareVersions(softwareId);
+        res.json({ versions });
+    } catch (err) {
+        res.status(500).send("Error fetching versions: " + err.message);
+    }
 });
 
 module.exports = router;

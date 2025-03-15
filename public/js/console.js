@@ -202,4 +202,9 @@ function updateStats(stats) {
     diskElement.textContent = `${stats.disk} MB`;
 }
 
+function clearLog() {
+    clearConsole();
+    console.log("Log cleared."); // Debugging information
+}
+
 console.log("Connecting WebSocket to:", `${window.location.protocol === "https:" ? "wss://" : "ws://"}${window.location.host}/ws?server=${serverName}`);

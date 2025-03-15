@@ -13,7 +13,7 @@ const app = express();
 const PORT = 3000;
 
 const server = require("http").createServer(app);
-const wss = new WebSocket.Server({ server, path: "/ws" }); // Ensure the path is set to /ws
+const wss = new WebSocket.Server({ server, path: "/ws" });
 
 app.use(express.static("public"));
 app.set("view engine", "ejs");
@@ -37,5 +37,5 @@ setupFileManagerRoutes(app);
 initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs, broadcastLog });
 
 server.listen(PORT, () => {
-    log.info(`Server berjalan di http://localhost:${PORT}`);
+    log.info(`Server berjalan di http://localhost:${PORT}`); // Comment out this line
 });

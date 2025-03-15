@@ -1,12 +1,12 @@
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
-const Log = require("cat-loggr");
+// const Log = require("cat-loggr"); // Comment out this line
 const { v4: uuidv4 } = require("uuid");
 const { getServerSoftwareById, getDownloadUrl } = require("./softwareDb");
 const axios = require("axios");
 
-const log = new Log();
+// const log = new Log(); // Comment out this line
 const SERVERS_DIR = path.join(__dirname, "../servers");
 
 let serverProcesses = {}; // Menyimpan proses server yang sedang berjalan
@@ -15,7 +15,7 @@ let serverLogs = {}; // Menyimpan log untuk setiap server
 // Fungsi untuk menghentikan server
 function stopServer(serverName, ws, broadcastLog, callback) {
     if (serverProcesses[serverName]) {
-        log.info(`Menghentikan server ${serverName}...`);
+        // log.info(`Menghentikan server ${serverName}...`); // Comment out this line
         serverProcesses[serverName].process.stdin.write("stop\n");
         serverProcesses[serverName].process.on("exit", () => {
             delete serverProcesses[serverName]; // Pastikan server dihapus lebih awal
@@ -47,11 +47,11 @@ function startServer(serverName, ws, broadcastLog) {
 
     if (!fs.existsSync(jarPath)) {
         ws.send(JSON.stringify({ type: "error", message: `server.jar tidak ditemukan di ${serverPath}` }));
-        log.error(`server.jar tidak ditemukan di ${serverPath}`);
+        // log.error(`server.jar tidak ditemukan di ${serverPath}`); // Comment out this line
         return;
     }
 
-    log.info(`Memulai server ${serverName}...`);
+    // log.info(`Memulai server ${serverName}...`); // Comment out this line
     const serverProcess = spawn("java", ["-Xmx1024M", "-Xms1024M", "-jar", jarPath, "nogui"], {
         cwd: serverPath,
         shell: true
@@ -64,18 +64,24 @@ function startServer(serverName, ws, broadcastLog) {
         const message = data.toString();
         serverLogs[serverName].push(message);
         broadcastLog(serverName, { type: "output", message });
-        log.info(`Server ${serverName} output: ${message}`);
+        // Filter out specific messages before logging
+        if (!message.includes("INFO") && !message.includes("WARN")) {
+            // log.info(`Server ${serverName} output: ${message}`); // Comment out this line
+        }
     });
 
     serverProcess.stderr.on("data", (data) => {
         const message = data.toString();
         serverLogs[serverName].push(message);
         broadcastLog(serverName, { type: "error", message });
-        log.error(`Server ${serverName} error: ${message}`);
+        // Filter out specific messages before logging
+        if (!message.includes("INFO") && !message.includes("WARN")) {
+            // log.error(`Server ${serverName} error: ${message}`); // Comment out this line
+        }
     });
 
     serverProcess.on("exit", (code) => {
-        log.info(`Server ${serverName} exited with code ${code}`);
+        // log.info(`Server ${serverName} exited with code ${code}`); // Comment out this line
         delete serverProcesses[serverName];
         serverLogs[serverName] = []; // Menghapus log ketika server berhenti
         broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server berhenti
@@ -88,11 +94,11 @@ function startServer(serverName, ws, broadcastLog) {
 // Fungsi untuk merestart server
 function restartServer(serverName, ws, broadcastLog) {
     if (serverProcesses[serverName]) {
-        log.info(`Memulai proses restart untuk server ${serverName}...`);
+        // log.info(`Memulai proses restart untuk server ${serverName}...`); // Comment out this line
         stopServer(serverName, ws, broadcastLog, () => {
-            log.info(`Server ${serverName} telah berhenti, menunggu sebelum restart...`);
+            // log.info(`Server ${serverName} telah berhenti, menunggu sebelum restart...`); // Comment out this line
             setTimeout(() => {
-                log.info(`Memulai ulang server ${serverName}...`);
+                // log.info(`Memulai ulang server ${serverName}...`); // Comment out this line
                 startServer(serverName, ws, broadcastLog);
             }, 30000); // Tunggu 30 detik sebelum memulai server kembali
         });
@@ -107,7 +113,7 @@ async function createServer(userId, serverName, softwareId, version) {
     const serverPath = path.join(SERVERS_DIR, serverName);
 
     if (!fs.existsSync(serverPath)) {
-        fs.mkdirSync(serverPath);
+        fs.mkdirSync(serverPath, { recursive: true }); // Ensure the directory is created recursively
         fs.writeFileSync(path.join(serverPath, "serverId.txt"), serverId);
     }
 
@@ -118,7 +124,7 @@ async function createServer(userId, serverName, softwareId, version) {
 
     // Ambil URL unduhan dari database
     const jarUrl = await getDownloadUrl(softwareId, version);
-    log.info(`Mengunduh server.jar dari: ${jarUrl}`);
+    // log.info(`Mengunduh server.jar dari: ${jarUrl}`); // Comment out this line
 
     if (!jarUrl) {
         throw new Error(`URL unduhan tidak valid untuk ${software.name} versi ${version}`);
@@ -142,7 +148,7 @@ async function createServer(userId, serverName, softwareId, version) {
 
         // Verifikasi ukuran file JAR yang diunduh
         const stats = fs.statSync(tempJarPath);
-        log.info(`Ukuran file JAR yang diunduh: ${stats.size} bytes`);
+        // log.info(`Ukuran file JAR yang diunduh: ${stats.size} bytes`); // Comment out this line
         if (stats.size < 1024) { // Ukuran file JAR yang valid biasanya lebih besar dari 1KB
             throw new Error("File JAR yang diunduh terlalu kecil, kemungkinan rusak.");
         }
@@ -150,9 +156,9 @@ async function createServer(userId, serverName, softwareId, version) {
         // Rename the downloaded jar file to the final name
         fs.renameSync(tempJarPath, finalJarPath);
 
-        log.info(`Unduhan server.jar untuk ${serverName} selesai.`);
+        // log.info(`Unduhan server.jar untuk ${serverName} selesai.`); // Comment out this line
     } catch (error) {
-        log.error(`Gagal mengunduh server.jar: ${error.message}`);
+        // log.error(`Gagal mengunduh server.jar: ${error.message}`); // Comment out this line
         throw new Error(`Gagal mengunduh server.jar untuk ${software.name} versi ${version}`);
     }
 

@@ -1,11 +1,12 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const { isAuthenticated } = require("../modules/auth"); // Add this line
 
 const router = express.Router();
 const SERVERS_DIR = path.join(__dirname, "../servers");
 
-router.get("/", (req, res) => {
+router.get("/", isAuthenticated, (req, res) => { // Add isAuthenticated middleware
     fs.readdir(SERVERS_DIR, (err, files) => {
         if (err) return res.status(500).json({ error: "Gagal membaca folder servers" });
 
