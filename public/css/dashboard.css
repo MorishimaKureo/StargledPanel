@@ -1,0 +1,82 @@
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Body Style */
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to right, #667eea, #764ba2);
+    color: white;
+}
+
+/* Container */
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 400px;
+}
+
+/* Title */
+h1 {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+/* Admin Button */
+.admin-btn {
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    background: #4a90e2;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.admin-btn:hover {
+    background: #357ab7;
+}
+
+/* No Server Message */
+.no-server {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* Server List */
+.server-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+}
+
+/* Server Item */
+.server-item {
+    background: rgba(255, 255, 255, 0.2);
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.server-item a {
+    text-decoration: none;
+    color: white;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.server-item:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
