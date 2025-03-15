@@ -28,7 +28,7 @@ app.use(session({
 app.use("/", require("./routes/dashboard"));
 app.use("/", require("./routes/login"));
 app.use("/", require("./routes/server"));
-app.use("/", require("./routes/admin"));
+app.use("/", require("./routes/admin")); // Ensure this line is included
 
 // Ensure setupFileManagerRoutes is correctly defined and used
 setupFileManagerRoutes(app);

@@ -1,12 +1,13 @@
 const { spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
-// const Log = require("cat-loggr"); // Comment out this line
+const Log = require("cat-loggr"); // Add this line
 const { v4: uuidv4 } = require("uuid");
 const { getServerSoftwareById, getDownloadUrl } = require("./softwareDb");
+const { addUserServer } = require("./serverDb");
 const axios = require("axios");
 
-// const log = new Log(); // Comment out this line
+const log = new Log(); // Add this line
 const SERVERS_DIR = path.join(__dirname, "../servers");
 
 let serverProcesses = {}; // Menyimpan proses server yang sedang berjalan
@@ -124,7 +125,7 @@ async function createServer(userId, serverName, softwareId, version) {
 
     // Ambil URL unduhan dari database
     const jarUrl = await getDownloadUrl(softwareId, version);
-    // log.info(`Mengunduh server.jar dari: ${jarUrl}`); // Comment out this line
+    log.info(`Generated download URL: ${jarUrl}`); // Add this line
 
     if (!jarUrl) {
         throw new Error(`URL unduhan tidak valid untuk ${software.name} versi ${version}`);
@@ -148,7 +149,7 @@ async function createServer(userId, serverName, softwareId, version) {
 
         // Verifikasi ukuran file JAR yang diunduh
         const stats = fs.statSync(tempJarPath);
-        // log.info(`Ukuran file JAR yang diunduh: ${stats.size} bytes`); // Comment out this line
+        log.info(`Ukuran file JAR yang diunduh: ${stats.size} bytes`); // Add this line
         if (stats.size < 1024) { // Ukuran file JAR yang valid biasanya lebih besar dari 1KB
             throw new Error("File JAR yang diunduh terlalu kecil, kemungkinan rusak.");
         }
@@ -156,11 +157,13 @@ async function createServer(userId, serverName, softwareId, version) {
         // Rename the downloaded jar file to the final name
         fs.renameSync(tempJarPath, finalJarPath);
 
-        // log.info(`Unduhan server.jar untuk ${serverName} selesai.`); // Comment out this line
+        log.info(`Unduhan server.jar untuk ${serverName} selesai.`); // Add this line
     } catch (error) {
-        // log.error(`Gagal mengunduh server.jar: ${error.message}`); // Comment out this line
+        log.error(`Gagal mengunduh server.jar: ${error.message}`); // Add this line
         throw new Error(`Gagal mengunduh server.jar untuk ${software.name} versi ${version}`);
     }
+
+    await addUserServer(userId, serverName); // Add this line to associate the server with the user
 
     return serverId;
 }

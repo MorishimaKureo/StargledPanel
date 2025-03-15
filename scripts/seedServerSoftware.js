@@ -13,7 +13,6 @@ db.serialize(async () => {
             name: "Minecraft Vanilla",
             start_script: "java -Xmx1024M -Xms1024M -jar server.jar nogui",
             environment: JSON.stringify({}),
-            download_url: "https://launchermeta.mojang.com/v1/packages/{version}/server.jar"
         },
         {
             id: uuidv4(),

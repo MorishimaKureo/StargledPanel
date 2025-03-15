@@ -21,5 +21,5 @@ async function updateVersions() {
 }
 
 document.addEventListener('DOMContentLoaded', (event) => {
-    updateVersions();
+    updateVersions(); // Ensure versions are loaded when the page loads
 });

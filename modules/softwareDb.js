@@ -56,6 +56,7 @@ async function addSoftwareVersion(softwareId, version) {
         `);
         stmt.run(softwareId, version, (err) => {
             if (err) {
+                log.error(`Error adding version ${version} for software ID ${softwareId}: ${err.message}`);
                 reject(err);
             } else {
                 resolve({ softwareId, version });
@@ -94,9 +95,14 @@ async function getServerSoftwareById(id) {
  */
 async function getSoftwareVersions(softwareId) {
     return new Promise((resolve, reject) => {
-        db.all("SELECT version FROM software_versions WHERE software_id = ?", [softwareId], (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows.map(row => row.version));
+        db.get("SELECT versions FROM server_software WHERE id = ?", [softwareId], (err, row) => {
+            if (err) {
+                log.error(`Error fetching versions for software ID ${softwareId}: ${err.message}`);
+                reject(err);
+            } else {
+                const versions = JSON.parse(row.versions);
+                resolve(versions);
+            }
         });
     });
 }
@@ -108,8 +114,26 @@ async function getDownloadUrl(id, version) {
     const software = await getServerSoftwareById(id);
     if (!software || !software.download_url) throw new Error("Software tidak ditemukan atau tidak memiliki URL.");
 
-    const downloadUrl = software.download_url.replace("{version}", version);
-    log.info(`Generated download URL: ${downloadUrl}`); // Replaced console.log
+    let downloadUrl;
+    if (software.name === "Minecraft Vanilla") {
+        const versionInfo = await new Promise((resolve, reject) => {
+            const minecraftDb = new sqlite3.Database('./databases/minecraft-vanilla.db');
+            minecraftDb.get("SELECT server_jar_url FROM minecraft_servers WHERE version = ?", [version], (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row);
+                }
+            });
+        });
+
+        if (!versionInfo) throw new Error("Version tidak ditemukan atau tidak memiliki ID Mojang.");
+
+        downloadUrl = versionInfo.server_jar_url;
+    } else {
+        downloadUrl = software.download_url.replace("{version}", version);
+    }
+    log.info(`Generated download URL: ${downloadUrl}`);
 
     return downloadUrl;
 }

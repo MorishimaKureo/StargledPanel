@@ -138,6 +138,8 @@ dist
 #databases
 databases/users.db
 databases/software.db
+databases/servers.db
+databases/minecraft-vanilla.db
 
 #servers files
 servers/test/cache
