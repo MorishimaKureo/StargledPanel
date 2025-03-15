@@ -1,12 +1,12 @@
 const express = require("express");
-const fs = require("fs"); // Add this line
-const path = require("path"); // Add this line
+const fs = require("fs");
+const path = require("path");
 const { isAuthenticated, isAdmin } = require("../modules/auth");
 const { addServerSoftware, getServerSoftware, getSoftwareVersions, getServerSoftwareById } = require("../modules/softwareDb");
 const { v4: uuidv4 } = require("uuid");
 
 const router = express.Router();
-const SERVERS_DIR = path.join(__dirname, "../servers"); // Add this line
+const SERVERS_DIR = path.join(__dirname, "../servers");
 
 // Admin welcome route
 router.get("/admin", isAuthenticated, isAdmin, (req, res) => {
