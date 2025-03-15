@@ -21,7 +21,13 @@ function deleteFolderRecursive(folderPath) {
     }
 }
 
-function setupFileManagerRoutes(app, isAuthenticated) {
+function setupFileManagerRoutes(app) {
+    // Dummy isAuthenticated function for demonstration
+    const isAuthenticated = (req, res, next) => {
+        // Implement your authentication logic here
+        next();
+    };
+
     // Endpoint untuk mendapatkan daftar file di server tertentu
     app.get("/server/:name/files/*?", isAuthenticated, (req, res) => {
         const serverName = req.params.name;

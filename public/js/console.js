@@ -40,23 +40,23 @@ function connectWebSocket() {
 
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        
-        if (data.type === "output" || data.type === "error" || data.type === "status") {
-            addConsoleLog(data.message);
-        }
-
-        if (data.type === "stats") {
-            document.getElementById("cpu").textContent = data.cpu + "%";
-            document.getElementById("ram").textContent = data.ram + "%";
-            document.getElementById("disk").textContent = data.disk + " MB";
-        }
-
-        if (data.type === "clear") {
-            clearConsole();
-        }
-
-        if (data.type === "logs") {
-            data.logs.forEach(log => addConsoleLog(log));
+        console.log("Received message from WebSocket:", data); // Debugging information
+        switch (data.type) {
+            case "output":
+                appendToConsole(data.message);
+                break;
+            case "error":
+                appendToConsole(data.message, "error");
+                break;
+            case "status":
+                appendToConsole(data.message, "status");
+                break;
+            case "clear":
+                clearConsole();
+                break;
+            case "stats":
+                updateStats(data);
+                break;
         }
     };
 }
@@ -79,6 +79,7 @@ function sendCommand(action) {
         clearConsole(); // Hapus log hanya jika server restart
     }
 
+    console.log(`Sending command to WebSocket: ${action}, ${command}`); // Debugging information
     ws.send(JSON.stringify({ action, serverName, command }));
     addConsoleLog(`> ${command || action}`);
 }
@@ -176,3 +177,22 @@ const updateConsole = debounce((message) => {
         consoleElement.scrollTop = consoleElement.scrollHeight;
     });
 }, 100);
+
+const consoleElement = document.getElementById("console");
+const cpuElement = document.getElementById("cpu");
+const ramElement = document.getElementById("ram");
+const diskElement = document.getElementById("disk");
+
+function appendToConsole(message, type = "output") {
+    const messageElement = document.createElement("div");
+    messageElement.textContent = message;
+    messageElement.className = type;
+    consoleElement.appendChild(messageElement);
+    consoleElement.scrollTop = consoleElement.scrollHeight;
+}
+
+function updateStats(stats) {
+    cpuElement.textContent = `${stats.cpu}%`;
+    ramElement.textContent = `${stats.ram}%`;
+    diskElement.textContent = `${stats.disk} MB`;
+}

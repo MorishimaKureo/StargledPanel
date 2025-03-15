@@ -1,6 +1,8 @@
 const sqlite3 = require('sqlite3').verbose();
 const axios = require('axios');
+const Log = require("cat-loggr");
 
+const log = new Log();
 const db = new sqlite3.Database('./databases/software.db');
 
 // Buat tabel jika belum ada
@@ -107,7 +109,7 @@ async function getDownloadUrl(id, version) {
     if (!software || !software.download_url) throw new Error("Software tidak ditemukan atau tidak memiliki URL.");
 
     const downloadUrl = software.download_url.replace("{version}", version);
-    console.log(`Generated download URL: ${downloadUrl}`); // Debugging information
+    log.info(`Generated download URL: ${downloadUrl}`); // Replaced console.log
 
     return downloadUrl;
 }

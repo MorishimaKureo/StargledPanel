@@ -13,6 +13,7 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
         const serverName = urlParams.searchParams.get("server");
 
         if (serverName) {
+            log.info(`Client connected to server: ${serverName}`);
             // Kirim log lama ke client yang baru terhubung
             if (serverLogs[serverName]) {
                 ws.send(JSON.stringify({ type: "logs", logs: serverLogs[serverName] }));
@@ -26,6 +27,9 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
                     ...stats
                 }));
             });
+        } else {
+            log.error("Server name not found in URL parameters.");
+            ws.send(JSON.stringify({ type: "error", message: "Server name not found in URL parameters." }));
         }
 
         ws.on("message", async (message) => {
@@ -39,14 +43,17 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
 
             switch (action) {
                 case "start":
+                    log.info(`Received start command for server ${serverName}`);
                     startServer(serverName, ws, (serverName, message) => broadcastLog(wss, serverName, message));
                     break;
                 case "command":
+                    log.info(`Received command for server ${serverName}: ${command}`);
                     if (serverProcesses[serverName]) {
                         serverProcesses[serverName].process.stdin.write(command + "\n");
                     }
                     break;
                 case "stop":
+                    log.info(`Received stop command for server ${serverName}`);
                     stopServer(serverName, ws, async (serverName, message) => {
                         broadcastLog(wss, serverName, message);
                         const serverPath = path.join(__dirname, "../servers", serverName);
@@ -61,6 +68,7 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
                     });
                     break;
                 case "restart":
+                    log.info(`Received restart command for server ${serverName}`);
                     if (serverProcesses[serverName]) {
                         ws.send(JSON.stringify({ type: "clear" })); // Clear console before restarting
                         stopServer(serverName, ws, (serverName, message) => broadcastLog(wss, serverName, message));
@@ -68,6 +76,7 @@ function initializeWebSocket(wss, { startServer, stopServer, serverProcesses, se
                     }
                     break;
                 case "kill":
+                    log.info(`Received kill command for server ${serverName}`);
                     if (serverProcesses[serverName]) {
                         serverProcesses[serverName].process.kill();
                         delete serverProcesses[serverName];

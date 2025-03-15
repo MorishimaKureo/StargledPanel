@@ -47,6 +47,7 @@ function startServer(serverName, ws, broadcastLog) {
 
     if (!fs.existsSync(jarPath)) {
         ws.send(JSON.stringify({ type: "error", message: `server.jar tidak ditemukan di ${serverPath}` }));
+        log.error(`server.jar tidak ditemukan di ${serverPath}`);
         return;
     }
 
@@ -63,15 +64,18 @@ function startServer(serverName, ws, broadcastLog) {
         const message = data.toString();
         serverLogs[serverName].push(message);
         broadcastLog(serverName, { type: "output", message });
+        log.info(`Server ${serverName} output: ${message}`);
     });
 
     serverProcess.stderr.on("data", (data) => {
         const message = data.toString();
         serverLogs[serverName].push(message);
         broadcastLog(serverName, { type: "error", message });
+        log.error(`Server ${serverName} error: ${message}`);
     });
 
-    serverProcess.on("exit", () => {
+    serverProcess.on("exit", (code) => {
+        log.info(`Server ${serverName} exited with code ${code}`);
         delete serverProcesses[serverName];
         serverLogs[serverName] = []; // Menghapus log ketika server berhenti
         broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server berhenti
@@ -90,7 +94,7 @@ function restartServer(serverName, ws, broadcastLog) {
             setTimeout(() => {
                 log.info(`Memulai ulang server ${serverName}...`);
                 startServer(serverName, ws, broadcastLog);
-            }, 30000); // Tunggu  detik sebelum memulai server kembali
+            }, 30000); // Tunggu 30 detik sebelum memulai server kembali
         });
     } else {
         ws.send(JSON.stringify({ type: "error", message: "Server tidak berjalan." }));
