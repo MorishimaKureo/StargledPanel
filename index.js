@@ -47,8 +47,8 @@ const cacheMiddleware = new cache(
 cacheMiddleware.attach(app);
 
 // Login route
-const routes = require("./routes/index");
-app.use(routes);
+const loginRoutes = require("./routes/login");
+app.use(loginRoutes);
 
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
@@ -97,6 +97,11 @@ app.get("/logs/:id", isAuthenticated, (req, res) => {
 
 // Endpoint untuk mengelola file di server
 setupFileManagerRoutes(app, isAuthenticated);
+
+const adminRoutes = require("./routes/admin");
+const manageServersRoutes = require("./modules/manageServers");
+app.use(adminRoutes);
+app.use(manageServersRoutes);
 
 // Initialize WebSocket server
 initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs, broadcastLog });
