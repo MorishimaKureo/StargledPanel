@@ -1,85 +1,163 @@
-/* Global Reset */
+/* Reset dan dasar */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
 }
 
-/* Body Style */
 body {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(to right, #667eea, #764ba2);
-    perspective: 1000px;
-    opacity: 0;
-    animation: fadeIn 0.8s ease-out forwards;
+    background: url('/images/background.jpg') no-repeat center center/cover;
+    font-family: 'Poppins', sans-serif;
+    overflow: hidden;
 }
 
-/* Animasi Fade In */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Animasi masuk (melayang dari depan + fade-in) */
-@keyframes flyIn {
-    from {
-        opacity: 0;
-        transform: translateZ(-300px);
-    }
-    to {
-        opacity: 1;
-        transform: translateZ(0);
-    }
-}
-
-/* Animasi keluar (melayang ke depan + fade-out) */
-@keyframes flyOut {
-    to {
-        opacity: 0;
-        transform: translateZ(300px);
-    }
-}
-
-/* Login Container */
-.login-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    width: 350px;
-    animation: flyIn 0.8s ease-out;
-}
-
-/* Efek keluar saat halaman berubah */
-body.fade-out .login-container {
-    animation: flyOut 0.5s ease-out forwards;
-}
-
-/* Input & Button */
-input, button {
+/* Efek Blur dan Gradasi Background */
+.background {
+    position: absolute;
     width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
+    height: 100%;
+    backdrop-filter: blur(8px);
+    background: radial-gradient(circle at center, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9));
+    z-index: -1;
+    animation: fadeIn 1.5s ease-in-out;
 }
 
-button {
-    background: #667eea;
+/* Login Card */
+.login-card {
+    background: rgba(20, 20, 30, 0.85);
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
     color: white;
-    cursor: pointer;
-    transition: 0.3s;
+    animation: scaleUp 0.8s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    position: relative;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
+/* Efek Glow Dynamic */
+.login-card::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 14px;
+    background: inherit;
+    filter: brightness(1.5) blur(10px);
+    mix-blend-mode: color-dodge;
+    z-index: -1;
+}
+
+/* Efek Text */
+h2 {
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Form Style */
+.form-group {
+    margin-bottom: 1.2rem;
+    text-align: left;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+}
+
+/* Input Field */
+input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    outline: none;
+    transition: all 0.5s ease-in-out;
+    font-size: 1rem;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    caret-color: white;
+}
+
+/* Efek Huruf Glowing */
+.glowing-text {
+    display: inline-block;
+    animation: glowText 0.5s ease-out forwards;
+}
+
+@keyframes glowText {
+    0% {
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    }
+    100% {
+        text-shadow: none;
+    }
+}
+
+/* Efek Glow Dinamis Saat Fokus */
+input:focus {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease-in-out;
+}
+
+/* Efek Glow Saat Mengetik */
+input:focus::placeholder {
+    opacity: 0.5;
+    transition: opacity 0.3s ease-in-out;
+}
+
+input.typing {
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    transition: text-shadow 0.3s ease-in-out;
+}
+
+/* Tombol Login */
+button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.4));
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.5s ease-in-out;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Efek Hover Tombol */
 button:hover {
-    background: #5a67d8;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.6));
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+}
+
+/* Animasi Halus */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }

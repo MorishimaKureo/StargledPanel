@@ -33,9 +33,18 @@ function isAdmin(req, res, next) {
     }
 }
 
+function isManager(req, res, next) {
+    if (req.session.user && req.session.user.role === 'manager') {
+        next();
+    } else {
+        res.status(403).send("Access denied");
+    }
+}
+
 module.exports = {
     authenticateUser,
     checkAdminRole,
     isAuthenticated,
-    isAdmin
+    isAdmin,
+    isManager
 };
