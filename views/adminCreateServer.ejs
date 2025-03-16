@@ -46,6 +46,13 @@
             <select name="version" required>
                 <!-- Versions will be populated based on selected software -->
             </select>
+            <select name="userId" required>
+                <option value="">Select User</option>
+                <% users.forEach(user => { %>
+                    <option value="<%= user.id %>"><%= user.username %></option>
+                <% }); %>
+            </select>
+            <input type="number" name="ramLimit" placeholder="RAM Limit (MB)" required>
             <button type="submit">Create Server</button>
         </form>
     </div>

@@ -1,6 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
+const fs = require('fs');
 
 const db = new sqlite3.Database('./databases/servers.db');
+const SERVERS_DIR = './servers';
 
 // Buat tabel jika belum ada
 db.serialize(() => {
@@ -64,8 +67,42 @@ async function getUserServers(userId) {
     });
 }
 
+/**
+ * Mengambil semua server milik pengguna dengan detail.
+ */
+async function getUserServersWithDetails(userId) {
+    return new Promise((resolve, reject) => {
+        db.all("SELECT server_name FROM user_servers WHERE user_id = ?", [userId], (err, rows) => {
+            if (err) reject(err);
+            else {
+                const servers = rows.map(row => {
+                    const serverPath = path.join(SERVERS_DIR, row.server_name);
+                    const configPath = path.join(serverPath, 'config.json');
+                    if (!fs.existsSync(configPath)) {
+                        return null; // Skip servers without config.json
+                    }
+                    const serverConfig = require(configPath);
+                    return {
+                        id: row.server_name,
+                        name: serverConfig.name,
+                        ip: serverConfig.ip,
+                        ramUsed: serverConfig.ramUsed,
+                        ramTotal: serverConfig.ramTotal,
+                        cpuUsage: serverConfig.cpuUsage,
+                        diskUsed: serverConfig.diskUsed,
+                        diskTotal: serverConfig.diskTotal,
+                        status: serverConfig.status
+                    };
+                }).filter(server => server !== null); // Filter out null values
+                resolve(servers);
+            }
+        });
+    });
+}
+
 module.exports = {
     addUserServer,
     deleteUserServer,
-    getUserServers
+    getUserServers,
+    getUserServersWithDetails
 };

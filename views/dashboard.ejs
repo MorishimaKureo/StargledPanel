@@ -5,35 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server Dashboard</title>
     <link rel="stylesheet" href="/css/dashboard.css">
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        document.body.classList.remove("fade-out");
-    });
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.body.classList.remove("fade-out");
+        });
 
-    window.addEventListener("beforeunload", () => {
-        document.body.classList.add("fade-out");
-    });
-</script>
+        window.addEventListener("beforeunload", () => {
+            document.body.classList.add("fade-out");
+        });
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Your Servers</h1>
-
-        <% if (user && user.role === "admin") { %>
-            <a href="/admin" class="admin-btn">Admin Panel</a>
-        <% } %>
-
-        <% if (servers.length === 0) { %>
-            <p class="no-server">Tidak ada server yang tersedia.</p>
-        <% } else { %>
-            <ul class="server-list">
-                <% servers.forEach(server => { %>
-                    <li class="server-item">
-                        <a href="/server/<%= server %>"><%= server %></a>
-                    </li>
-                <% }); %>
-            </ul>
-        <% } %>
+    <div class="sidebar">
+        <h2 class="logo">Stargled Panel</h2>
+        <ul>
+            <li class="active"><a href="#">Servers</a></li>
+            <li><a href="#">Account</a></li>
+            <% if (user.role === 'admin') { %>
+                <li><a href="/admin">Admin Panel</a></li>
+            <% } %>
+        </ul>
     </div>
+
+    <div class="main-content">
+        <div class="header">
+            <select id="serverSelect">
+                <option>Select a server</option>
+                <% servers.forEach(server => { %>
+                    <option value="<%= server.id %>"><%= server.name %></option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="server-container">
+            <% if (servers.length === 0) { %>
+                <p class="no-server">Tidak ada server yang tersedia.</p>
+            <% } else { %>
+                <div class="server-list">
+                    <% servers.forEach(server => { %>
+                        <div class="server-card">
+                            <div class="server-banner"></div>
+                            <div class="server-info">
+                                <h3><%= server.name %></h3>
+                                <p>IP: <%= server.ip %></p>
+                                <p>RAM: <%= server.ramUsed %> / <%= server.ramTotal %></p>
+                                <p>CPU: <%= server.cpuUsage %> / Unlimited</p>
+                                <p>Disk: <%= server.diskUsed %> / <%= server.diskTotal %></p>
+                                <span class="status <%= server.status %>"><%= server.status %></span>
+                                <a href="/server/<%= server.id %>" class="manage-btn">Manage Server</a>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+
+        <footer>
+            Stargled Panel &copy; 2025
+        </footer>
+    </div>
+    <script>
+        document.getElementById('serverSelect').addEventListener('change', function() {
+            const serverId = this.value;
+            if (serverId) {
+                window.location.href = `/server/${serverId}`;
+            }
+        });
+    </script>
 </body>
 </html>

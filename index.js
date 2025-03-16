@@ -13,6 +13,7 @@ const compression = require("compression");
 const cache = require("express-cache-middleware");
 const CacheManager = require("cache-manager");
 const { authenticateUser, checkAdminRole } = require("./modules/auth");
+const { getUserServersWithDetails } = require("./modules/serverDb"); // Update this line
 
 const log = new Log();
 const app = express();
@@ -60,18 +61,13 @@ function isAuthenticated(req, res, next) {
 }
 
 // Endpoint untuk mendapatkan daftar server
-app.get("/", isAuthenticated, (req, res) => {
-    fs.readdir(SERVERS_DIR, (err, files) => {
-        if (err) return res.status(500).json({ error: "Gagal membaca folder servers" });
-
-        let servers = files.filter(file => fs.statSync(path.join(SERVERS_DIR, file)).isDirectory());
-
-        if (req.session.user.role !== 'admin') {
-            servers = servers.filter(server => server.startsWith(req.session.user.id + "_"));
-        }
-
+app.get("/", isAuthenticated, async (req, res) => {
+    try {
+        const servers = await getUserServersWithDetails(req.session.user.id); // Update this line
         res.render("dashboard", { servers, user: req.session.user });
-    });
+    } catch (err) {
+        res.status(500).json({ error: "Gagal membaca folder servers" });
+    }
 });
 
 // Halaman console per server

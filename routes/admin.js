@@ -4,7 +4,7 @@ const path = require("path");
 const { isAuthenticated, isAdmin } = require("../modules/auth");
 const { addServerSoftware, getServerSoftware, getSoftwareVersions, getServerSoftwareById } = require("../modules/softwareDb");
 const { createServer } = require("../modules/serverManager");
-const { deleteUserServer } = require("../modules/serverDb");
+const { deleteUserServer, addUserServer } = require("../modules/serverDb");
 const { v4: uuidv4 } = require("uuid");
 const Log = require("cat-loggr");
 const { addUser, getAllUsers, deleteUser, updateUserPassword } = require("../modules/userDb");
@@ -78,21 +78,25 @@ router.get("/admin/manage-servers", isAuthenticated, isAdmin, async (req, res) =
 // Admin create server route
 router.get("/admin/create-server", isAuthenticated, isAdmin, async (req, res) => {
     const softwareOptions = await getServerSoftware();
-    res.render("adminCreateServer", { softwareOptions });
+    const users = await getAllUsers(); // Get all users
+    res.render("adminCreateServer", { softwareOptions, users });
 });
 
 // Endpoint to create a new server (admin only)
 router.post("/admin/create-server", isAuthenticated, isAdmin, async (req, res) => {
-    const { serverName, softwareId, version } = req.body;
+    const { serverName, softwareId, version, userId, ramLimit } = req.body;
     if (!serverName) {
         return res.status(400).send("Server name is required");
     }
-    const userId = req.session.user.id;
     if (!userId) {
         return res.status(400).send("User ID is required");
     }
+    if (!ramLimit || isNaN(ramLimit) || ramLimit <= 0) {
+        return res.status(400).send("Valid RAM limit is required");
+    }
     try {
-        const serverId = await createServer(userId, serverName, softwareId, version);
+        const serverId = await createServer(userId, serverName, softwareId, version, ramLimit);
+        await addUserServer(userId, serverName); // Assign the server to the user
         res.redirect(`/admin/manage-servers`);
     } catch (error) {
         res.status(500).send("Error creating server: " + error.message);

@@ -37,6 +37,7 @@ function stopServer(serverName, ws, broadcastLog, callback) {
 function startServer(serverName, ws, broadcastLog) {
     const serverPath = path.join(SERVERS_DIR, serverName);
     const jarPath = path.join(serverPath, "server.jar");
+    const configPath = path.join(serverPath, "config.json");
     serverLogs[serverName] = [];
     broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server baru dimulai
 
@@ -50,8 +51,16 @@ function startServer(serverName, ws, broadcastLog) {
         return;
     }
 
-    log.info(`Memulai server ${serverName}...`);
-    const serverProcess = spawn("java", ["-Xmx1024M", "-Xms1024M", "-jar", jarPath, "nogui"], {
+    if (!fs.existsSync(configPath)) {
+        ws.send(JSON.stringify({ type: "error", message: `config.json tidak ditemukan di ${serverPath}` }));
+        return;
+    }
+
+    const serverConfig = require(configPath);
+    const ramLimit = serverConfig.ramLimit || 1024; // Default to 1024MB if not specified
+
+    log.info(`Memulai server ${serverName} dengan RAM limit ${ramLimit}MB...`);
+    const serverProcess = spawn("java", [`-Xmx${ramLimit}M`, `-Xms${ramLimit}M`, "-jar", jarPath, "nogui"], {
         cwd: serverPath,
         shell: true
     });
@@ -98,7 +107,7 @@ function restartServer(serverName, ws, broadcastLog) {
 }
 
 // Fungsi untuk membuat server baru
-async function createServer(userId, serverName, softwareId, version) {
+async function createServer(userId, serverName, softwareId, version, ramLimit) {
     const serverId = uuidv4();
     const serverPath = path.join(SERVERS_DIR, serverName);
 
@@ -151,6 +160,20 @@ async function createServer(userId, serverName, softwareId, version) {
         log.error(`Gagal mengunduh server.jar: ${error.message}`);
         throw new Error(`Gagal mengunduh server.jar untuk ${software.name} versi ${version}`);
     }
+
+    // Save server configuration
+    const serverConfig = {
+        name: serverName,
+        ip: "127.0.0.1",
+        ramUsed: 0,
+        ramTotal: ramLimit,
+        cpuUsage: 0,
+        diskUsed: 0,
+        diskTotal: 0,
+        status: "offline",
+        ramLimit
+    };
+    fs.writeFileSync(path.join(serverPath, "config.json"), JSON.stringify(serverConfig, null, 2));
 
     return serverId;
 }
