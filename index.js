@@ -28,7 +28,8 @@ app.use(session({
 app.use("/", require("./routes/dashboard"));
 app.use("/", require("./routes/login"));
 app.use("/", require("./routes/server"));
-app.use("/", require("./routes/admin")); // Ensure this line is included
+app.use("/", require("./routes/admin"));
+app.use("/", require("./routes/logout")); // Add this line
 
 // Ensure setupFileManagerRoutes is correctly defined and used
 setupFileManagerRoutes(app);
@@ -37,5 +38,5 @@ setupFileManagerRoutes(app);
 initializeWebSocket(wss, { startServer, stopServer, serverProcesses, serverLogs, broadcastLog });
 
 server.listen(PORT, () => {
-    log.info(`Server berjalan di http://localhost:${PORT}`); // Comment out this line
+    log.info(`Server berjalan di http://localhost:${PORT}`);
 });
