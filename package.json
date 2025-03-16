@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "create-user": "node ./scripts/seedUsers.js",
-    "seeds": "node ./scripts/seedAll.js"
+    "seeds": "node ./scripts/seedSoftware.js"
   },
   "keywords": [],
   "author": "",

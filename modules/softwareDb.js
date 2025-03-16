@@ -2,6 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const axios = require('axios');
 
 const db = new sqlite3.Database('./databases/software.db');
+const vanillaDb = new sqlite3.Database('./databases/minecraft-vanilla.db');
 
 // Buat tabel jika belum ada
 db.serialize(() => {
@@ -104,9 +105,23 @@ async function getSoftwareVersions(name) {
  */
 async function getDownloadUrl(id, version) {
     const software = await getServerSoftwareById(id);
-    if (!software || !software.download_url) throw new Error("Software tidak ditemukan atau tidak memiliki URL.");
+    if (!software) throw new Error("Software tidak ditemukan atau tidak memiliki URL.");
 
-    const downloadUrl = software.download_url.replace("{version}", version);
+    let downloadUrl;
+    if (software.name === "Minecraft Vanilla") {
+        // Fetch the download URL for Minecraft Vanilla from the minecraft-vanilla.db database
+        const vanillaSoftware = await new Promise((resolve, reject) => {
+            vanillaDb.get("SELECT server_jar_url FROM minecraft_servers WHERE version = ?", [version], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        if (!vanillaSoftware || !vanillaSoftware.server_jar_url) throw new Error("Minecraft Vanilla tidak ditemukan atau tidak memiliki URL untuk versi tersebut.");
+        downloadUrl = vanillaSoftware.server_jar_url;
+    } else {
+        downloadUrl = software.download_url.replace("{version}", version);
+    }
+
     console.log(`Generated download URL: ${downloadUrl}`); // Debugging information
 
     return downloadUrl;

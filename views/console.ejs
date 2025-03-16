@@ -16,6 +16,7 @@
             border: 1px solid #ccc;
         }
     </style>
+    <script>window.SERVER_NAME = "<%= serverName %>";</script>
 </head>
 <body>
     <div class="topbar">
@@ -36,5 +37,4 @@
     <button onclick="sendCommand('command')">Send</button>
 </body>
 <script src="/js/console.js"></script>
-<script>window.SERVER_NAME = "<%= serverName %>";</script>
 </html>

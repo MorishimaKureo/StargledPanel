@@ -73,15 +73,20 @@ async function getUserServers(userId) {
 async function getUserServersWithDetails(userId) {
     return new Promise((resolve, reject) => {
         db.all("SELECT server_name FROM user_servers WHERE user_id = ?", [userId], (err, rows) => {
-            if (err) reject(err);
-            else {
-                const servers = rows.map(row => {
+            if (err) return reject(err);
+            
+            const servers = rows.map(row => {
+                try {
                     const serverPath = path.join(SERVERS_DIR, row.server_name);
                     const configPath = path.join(serverPath, 'config.json');
+
                     if (!fs.existsSync(configPath)) {
-                        return null; // Skip servers without config.json
+                        console.warn(`Config file missing: ${configPath}`);
+                        return null;
                     }
-                    const serverConfig = require(configPath);
+
+                    const serverConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
                     return {
                         id: row.server_name,
                         name: serverConfig.name,
@@ -93,9 +98,13 @@ async function getUserServersWithDetails(userId) {
                         diskTotal: serverConfig.diskTotal,
                         status: serverConfig.status
                     };
-                }).filter(server => server !== null); // Filter out null values
-                resolve(servers);
-            }
+                } catch (error) {
+                    console.error(`Error reading server config for ${row.server_name}:`, error);
+                    return null;
+                }
+            }).filter(server => server !== null);
+
+            resolve(servers);
         });
     });
 }
