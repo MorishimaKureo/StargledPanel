@@ -29,7 +29,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
     secret: 'your_secret_key',
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: false, // Set to false to avoid saving uninitialized sessions
+    cookie: { secure: false } // Set to true if using HTTPS
 }));
 
 // Middleware untuk compression
@@ -46,24 +47,8 @@ const cacheMiddleware = new cache(
 cacheMiddleware.attach(app);
 
 // Login route
-app.get("/login", (req, res) => {
-    res.render("login");
-});
-
-app.post("/login", async (req, res) => {
-    const { username, password } = req.body;
-    const user = await authenticateUser(username, password);
-    if (user) {
-        req.session.user = {
-            id: user.id, // Ensure user ID is set correctly
-            username: user.username,
-            role: user.role
-        };
-        res.redirect("/");
-    } else {
-        res.status(401).send("Login failed");
-    }
-});
+const loginRoutes = require("./routes/login");
+app.use(loginRoutes);
 
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
