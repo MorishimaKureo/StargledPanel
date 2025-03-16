@@ -1,7 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const { isAuthenticated, isAdmin } = require("../modules/auth");
+const { isAuthenticated, isAdmin, authenticateUser } = require("../modules/auth");
 const { addServerSoftware, getServerSoftware, getSoftwareVersions, getServerSoftwareById } = require("../modules/softwareDb");
 const { createServer } = require("../modules/serverManager");
 const { deleteUserServer } = require("../modules/serverDb");
