@@ -4,9 +4,10 @@ const path = require("path");
 const { isAuthenticated, isAdmin } = require("../modules/auth");
 const { addServerSoftware, getServerSoftware, getSoftwareVersions, getServerSoftwareById } = require("../modules/softwareDb");
 const { createServer } = require("../modules/serverManager");
-const { deleteUserServer } = require("../modules/serverDb"); // Add this line
+const { deleteUserServer } = require("../modules/serverDb");
 const { v4: uuidv4 } = require("uuid");
 const Log = require("cat-loggr");
+const { addUser, getAllUsers, deleteUser, updateUserPassword } = require("../modules/userDb");
 
 const router = express.Router();
 const log = new Log();
@@ -32,6 +33,36 @@ router.post("/admin/add-software", isAuthenticated, isAdmin, (req, res) => {
     }).catch(err => {
         res.status(500).send("Error adding server software: " + err.message);
     });
+});
+
+// Admin manage users route
+router.get("/admin/manage-users", isAuthenticated, isAdmin, async (req, res) => {
+    const users = await getAllUsers();
+    res.render("adminManageUsers", { users });
+});
+
+// Admin add user form submission route
+router.post("/admin/add-user", isAuthenticated, isAdmin, (req, res) => {
+    const { username, password, role } = req.body;
+    addUser(username, password, role).then(() => {
+        res.redirect("/admin/manage-users");
+    }).catch(err => {
+        res.status(500).send("Error adding user: " + err.message);
+    });
+});
+
+// Admin delete user route
+router.post("/admin/delete-user", isAuthenticated, isAdmin, async (req, res) => {
+    const { userId } = req.body;
+    await deleteUser(userId);
+    res.redirect("/admin/manage-users");
+});
+
+// Admin update user password route
+router.post("/admin/update-user-password", isAuthenticated, isAdmin, async (req, res) => {
+    const { userId, newPassword } = req.body;
+    await updateUserPassword(userId, newPassword);
+    res.redirect("/admin/manage-users");
 });
 
 // Admin manage servers route
@@ -78,7 +109,7 @@ router.post("/admin/manage-servers/delete-server", isAuthenticated, isAdmin, asy
 
     if (fs.existsSync(serverPath)) {
         fs.rmSync(serverPath, { recursive: true });
-        await deleteUserServer(serverName); // Add this line to remove the server entry from the database
+        await deleteUserServer(serverName);
         res.redirect("/admin/manage-servers");
     } else {
         res.status(404).send("Server tidak ditemukan");
@@ -94,7 +125,7 @@ router.get("/admin/get-versions/:softwareId", isAuthenticated, isAdmin, async (r
     }
 
     try {
-        const versions = await getSoftwareVersions(softwareId);
+        const versions = await getSoftwareVersions(software.name);
         res.json({ versions });
     } catch (err) {
         log.error(`Error fetching versions for software ID ${softwareId}: ${err.message}`);

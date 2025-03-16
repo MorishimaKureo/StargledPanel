@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+</head>
+<body>
+    <h1>Manage Users</h1>
+    <%- include('partials/adminSidebar') %>
+    <div class="content">
+        <h2>Add New User</h2>
+        <form action="/admin/add-user" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <label for="role">Role:</label>
+            <select id="role" name="role" required>
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+            <br>
+            <button type="submit">Add User</button>
+        </form>
+
+        <h2>User List</h2>
+        <% if (users.length === 0) { %>
+            <p>No users available.</p>
+        <% } else { %>
+            <ul>
+                <% users.forEach(user => { %>
+                    <li>
+                        <%= user.username %> (<%= user.role %>)
+                        <form action="/admin/delete-user" method="POST" style="display:inline;">
+                            <input type="hidden" name="userId" value="<%= user.id %>">
+                            <button type="submit">Delete</button>
+                        </form>
+                        <form action="/admin/update-user-password" method="POST" style="display:inline;">
+                            <input type="hidden" name="userId" value="<%= user.id %>">
+                            <input type="password" name="newPassword" placeholder="New Password" required>
+                            <button type="submit">Update Password</button>
+                        </form>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } %>
+    </div>
+</body>
+</html>

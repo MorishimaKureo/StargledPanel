@@ -16,10 +16,6 @@
             border: 1px solid #ccc;
         }
     </style>
-    <script>
-        window.SERVER_NAME = "<%= serverName %>";
-        console.log("Server name set to:", window.SERVER_NAME); // Debugging information
-    </script>
 </head>
 <body>
     <div class="topbar">
@@ -36,9 +32,9 @@
     <button onclick="sendCommand('start')">Start</button>
     <button onclick="sendCommand('stop')">Stop</button>
     <button onclick="sendCommand('restart')">Restart</button>
-    <button onclick="clearLog()">Clear Log</button> <!-- Add this line -->
     <input type="text" id="commandInput" placeholder="Ketik perintah..." onkeydown="handleEnter(event)">
     <button onclick="sendCommand('command')">Send</button>
 </body>
-<script src="/js/console.js"></script> <!-- Reference the new JavaScript file -->
+<script src="/js/console.js"></script>
+<script>window.SERVER_NAME = "<%= serverName %>";</script>
 </html>

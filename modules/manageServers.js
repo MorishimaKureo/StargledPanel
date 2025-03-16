@@ -4,9 +4,7 @@ const path = require("path");
 const { createServer } = require("./serverManager");
 const { isAuthenticated, isAdmin } = require("./auth");
 const { getServerSoftware, getSoftwareVersions, getServerSoftwareById } = require("./softwareDb");
-const Log = require("cat-loggr");
 
-const log = new Log();
 const router = express.Router();
 const SERVERS_DIR = path.join(__dirname, "../servers");
 
@@ -36,10 +34,10 @@ router.get("/admin/get-versions/:softwareId", isAuthenticated, isAdmin, async (r
 
     try {
         const versions = await getSoftwareVersions(software.name);
-        log.info(`Fetched versions for ${software.name}:`, versions); // Replaced console.log
+        console.log(`Fetched versions for ${software.name}:`, versions); // Debugging information
         res.json({ versions });
     } catch (err) {
-        log.error(`Error fetching versions for ${software.name}:`, err.message); // Replaced console.error
+        console.error(`Error fetching versions for ${software.name}:`, err.message); // Debugging information
         res.status(500).send("Error fetching versions: " + err.message);
     }
 });

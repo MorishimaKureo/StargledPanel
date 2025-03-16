@@ -1,8 +1,9 @@
 const db = require("./db");
+const bcrypt = require("bcrypt");
 
 async function authenticateUser(username, password) {
     const user = await db.getUserByUsername(username);
-    if (user && user.password === password) {
+    if (user && await bcrypt.compare(password, user.password)) {
         return user;
     }
     return null;

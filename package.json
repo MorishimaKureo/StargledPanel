@@ -13,6 +13,7 @@
   "description": "",
   "dependencies": {
     "axios": "^1.8.3",
+    "bcrypt": "^5.1.1",
     "cat-loggr": "^1.2.2",
     "child_process": "^1.0.2",
     "compression": "^1.8.0",

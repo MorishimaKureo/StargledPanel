@@ -2,6 +2,7 @@ const express = require("express");
 const { isAuthenticated, isAdmin } = require("./auth");
 const { addServerSoftware, getServerSoftware } = require("./softwareDb");
 const { v4: uuidv4 } = require("uuid");
+const { addUser } = require("./userDb");
 
 const router = express.Router();
 
@@ -24,6 +25,21 @@ router.post("/admin/add-software", isAuthenticated, isAdmin, (req, res) => {
         res.redirect("/admin/manage-software");
     }).catch(err => {
         res.status(500).send("Error adding server software: " + err.message);
+    });
+});
+
+// Admin add user page route
+router.get("/admin/add-user", isAuthenticated, isAdmin, (req, res) => {
+    res.render("adminAddUser");
+});
+
+// Admin add user form submission route
+router.post("/admin/add-user", isAuthenticated, isAdmin, (req, res) => {
+    const { username, password, role } = req.body;
+    addUser(username, password, role).then(() => {
+        res.redirect("/admin");
+    }).catch(err => {
+        res.status(500).send("Error adding user: " + err.message);
     });
 });
 

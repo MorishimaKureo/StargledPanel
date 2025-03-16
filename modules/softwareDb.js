@@ -1,8 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const axios = require('axios');
-const Log = require("cat-loggr");
 
-const log = new Log();
 const db = new sqlite3.Database('./databases/software.db');
 
 // Buat tabel jika belum ada
@@ -14,13 +12,6 @@ db.serialize(() => {
             start_script TEXT,
             environment TEXT,
             download_url TEXT
-        )
-    `);
-    db.run(`
-        CREATE TABLE IF NOT EXISTS software_versions (
-            software_id TEXT,
-            version TEXT,
-            FOREIGN KEY (software_id) REFERENCES server_software(id)
         )
     `);
 });
@@ -39,27 +30,6 @@ async function addServerSoftware(id, name, startScript, environment, downloadUrl
                 reject(err);
             } else {
                 resolve({ id, name, startScript, environment, downloadUrl });
-            }
-            stmt.finalize();
-        });
-    });
-}
-
-/**
- * Menambahkan versi untuk software server.
- */
-async function addSoftwareVersion(softwareId, version) {
-    return new Promise((resolve, reject) => {
-        const stmt = db.prepare(`
-            INSERT INTO software_versions (software_id, version)
-            VALUES (?, ?)
-        `);
-        stmt.run(softwareId, version, (err) => {
-            if (err) {
-                log.error(`Error adding version ${version} for software ID ${softwareId}: ${err.message}`);
-                reject(err);
-            } else {
-                resolve({ softwareId, version });
             }
             stmt.finalize();
         });
@@ -91,20 +61,42 @@ async function getServerSoftwareById(id) {
 }
 
 /**
- * Mengambil daftar versi dari database berdasarkan ID software.
+ * Mengambil daftar versi dari API eksternal berdasarkan nama software.
  */
-async function getSoftwareVersions(softwareId) {
-    return new Promise((resolve, reject) => {
-        db.get("SELECT versions FROM server_software WHERE id = ?", [softwareId], (err, row) => {
-            if (err) {
-                log.error(`Error fetching versions for software ID ${softwareId}: ${err.message}`);
-                reject(err);
-            } else {
-                const versions = JSON.parse(row.versions);
-                resolve(versions);
-            }
-        });
-    });
+async function getSoftwareVersions(name) {
+    const versionUrls = {
+        "Minecraft Vanilla": "https://launchermeta.mojang.com/mc/game/version_manifest.json",
+        "Paper": "https://api.papermc.io/v2/projects/paper",
+        "Purpur": "https://api.purpurmc.org/v2/purpur",
+        "Forge": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/promotions_slim.json",
+        "Fabric": "https://meta.fabricmc.net/v2/versions/game"
+    };
+
+    const url = versionUrls[name];
+    if (!url) throw new Error(`No version URL found for software: ${name}`);
+
+    const response = await axios.get(url);
+    let versions = [];
+
+    switch (name) {
+        case "Minecraft Vanilla":
+            versions = response.data.versions.map(version => version.id);
+            break;
+        case "Paper":
+            versions = response.data.versions.map(version => version.version);
+            break;
+        case "Purpur":
+            versions = response.data.versions;
+            break;
+        case "Forge":
+            versions = Object.keys(response.data.promos).map(key => key.replace("-recommended", "").replace("-latest", ""));
+            break;
+        case "Fabric":
+            versions = response.data.map(version => version.version);
+            break;
+    }
+
+    return versions;
 }
 
 /**
@@ -114,33 +106,14 @@ async function getDownloadUrl(id, version) {
     const software = await getServerSoftwareById(id);
     if (!software || !software.download_url) throw new Error("Software tidak ditemukan atau tidak memiliki URL.");
 
-    let downloadUrl;
-    if (software.name === "Minecraft Vanilla") {
-        const versionInfo = await new Promise((resolve, reject) => {
-            const minecraftDb = new sqlite3.Database('./databases/minecraft-vanilla.db');
-            minecraftDb.get("SELECT server_jar_url FROM minecraft_servers WHERE version = ?", [version], (err, row) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row);
-                }
-            });
-        });
-
-        if (!versionInfo) throw new Error("Version tidak ditemukan atau tidak memiliki ID Mojang.");
-
-        downloadUrl = versionInfo.server_jar_url;
-    } else {
-        downloadUrl = software.download_url.replace("{version}", version);
-    }
-    log.info(`Generated download URL: ${downloadUrl}`);
+    const downloadUrl = software.download_url.replace("{version}", version);
+    console.log(`Generated download URL: ${downloadUrl}`); // Debugging information
 
     return downloadUrl;
 }
 
 module.exports = {
     addServerSoftware,
-    addSoftwareVersion,
     getServerSoftware,
     getServerSoftwareById,
     getSoftwareVersions,
