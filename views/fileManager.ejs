@@ -4,44 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Manager - <%= serverName %></title>
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="/css/file-manager.css">
 </head>
 <body>
-    <h1>File Manager: <%= serverName %></h1>
+    <%- include('partials/consoleSidebar') %>
+    <div class="container">
+        <div class="header">
+            <h1>File Manager: <%= serverName %></h1>
+            <div class="search-bar">
+                <input type="text" placeholder="Search">
+            </div>
+        </div>
 
-    <% if (relativePath) { %>
-        <a href="/server/<%= serverName %>/files/<%= relativePath.split('/').slice(0, -1).join('/') %>">🔙 Kembali</a>
-    <% } else { %>
-        <a href="/server/<%= serverName %>">🔙 Kembali ke Console</a>
-    <% } %>
+        <div class="file-navigation">
+            <% if (relativePath) { %>
+                <a href="/server/<%= serverName %>/files/<%= relativePath.split('/').slice(0, -1).join('/') %>" class="back-btn">🔙 Back</a>
+            <% } else { %>
+                <a href="/server/<%= serverName %>" class="back-btn">🔙 Back to Console</a>
+            <% } %>
+        </div>
 
-    <h2>File List</h2>
-    <ul>
-        <% fileList.forEach(file => { %>
-            <li>
-                <% if (file.isDirectory) { %>
-                    📁 <a href="/server/<%= serverName %>/files/<%= relativePath ? relativePath + '/' : '' %><%= file.name %>"><%= file.name %></a>
-                    <form action="/server/<%= serverName %>/delete" method="POST" style="display:inline;">
-                        <input type="hidden" name="fileName" value="<%= file.name %>">
-                        <input type="hidden" name="folderPath" value="<%= relativePath %>">
-                        <input type="hidden" name="isDirectory" value="true">
-                        <button type="submit">Hapus Folder</button>
-                    </form>
-                <% } else { %>
-                    📄 <a href="/server/<%= serverName %>/edit/<%= relativePath ? relativePath + '/' : '' %><%= file.name %>"><%= file.name %></a> 
-                    <form action="/server/<%= serverName %>/delete" method="POST" style="display:inline;">
-                        <input type="hidden" name="fileName" value="<%= file.name %>">
-                        <input type="hidden" name="folderPath" value="<%= relativePath %>">
-                        <button type="submit">Hapus</button>
-                    </form>
-                <% } %>
-            </li>
-        <% }) %>
-    </ul>
+        <div class="file-list">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Size</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% fileList.forEach(file => { %>
+                        <tr>
+                            <td>
+                                <% if (file.isDirectory) { %>
+                                    📁 <a href="/server/<%= serverName %>/files/<%= relativePath ? relativePath + '/' : '' %><%= file.name %></a>
+                                <% } else { %>
+                                    📄 <a href="/server/<%= serverName %>/edit/<%= relativePath ? relativePath + '/' : '' %><%= file.name %></a>
+                                <% } %>
+                            </td>
+                            <td><%= file.size %></td>
+                            <td><%= file.date %></td>
+                            <td>
+                                <form action="/server/<%= serverName %>/delete" method="POST" class="inline-form">
+                                    <input type="hidden" name="fileName" value="<%= file.name %>">
+                                    <input type="hidden" name="folderPath" value="<%= relativePath %>">
+                                    <input type="hidden" name="isDirectory" value="<%= file.isDirectory %>">
+                                    <button type="submit" class="delete-btn">🗑 Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
 
-    <h2>Upload File</h2>
-    <form action="/server/<%= serverName %>/upload/<%= relativePath %>" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <button type="submit">Upload</button>
-    </form>
+        <div class="upload-section">
+            <h2>Upload File</h2>
+            <form action="/server/<%= serverName %>/upload/<%= relativePath %>" method="POST" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <button type="submit" class="upload-btn">Upload</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

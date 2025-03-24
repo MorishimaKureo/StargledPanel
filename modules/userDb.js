@@ -61,4 +61,16 @@ async function updateUserPassword(userId, newPassword) {
     });
 }
 
-module.exports = { addUser, getAllUsers, deleteUser, updateUserPassword };
+async function updateUserUsername(userId, newUsername) {
+    return new Promise((resolve, reject) => {
+        db.run("UPDATE users SET username = ? WHERE id = ?", [newUsername, userId], (err) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
+
+module.exports = { addUser, getAllUsers, deleteUser, updateUserPassword, updateUserUsername };

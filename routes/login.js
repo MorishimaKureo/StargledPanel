@@ -9,22 +9,27 @@ router.get("/login", (req, res) => {
 
 router.post("/login", async (req, res) => {
     const { username, password } = req.body;
-    const user = await authenticateUser(username, password);
-    if (user) {
-        req.session.regenerate((err) => {
-            if (err) {
-                return res.status(500).send("Failed to regenerate session.");
-            }
-            req.session.user = user;
-            req.session.save((err) => {
+    try {
+        const user = await authenticateUser(req, username, password);
+        if (user) {
+            res.clearCookie('connect.sid'); // Clear any existing session cookie
+            req.session.regenerate((err) => { // Regenerate session to ensure a new session ID
                 if (err) {
-                    return res.status(500).send("Failed to save session.");
+                    return res.render("login", { error: "Failed to regenerate session. Please try again." });
                 }
-                res.redirect("/");
+                req.session.user = user;
+                req.session.save((err) => {
+                    if (err) {
+                        return res.render("login", { error: "Failed to save session. Please try again." });
+                    }
+                    res.redirect("/");
+                });
             });
-        });
-    } else {
-        res.status(401).send("Invalid username or password");
+        } else {
+            res.render("login", { error: "Invalid username or password" });
+        }
+    } catch (err) {
+        res.render("login", { error: "Failed to save session. Please try again." });
     }
 });
 

@@ -12,6 +12,9 @@
     <div class="background"></div>
     <div class="login-card">
         <h2>Login to Panel</h2>
+        <% if (typeof error !== 'undefined') { %>
+            <div class="error-message"><%= error %></div>
+        <% } %>
         <form action="/login" method="post">
             <div class="form-group">
                 <label for="username">Username or Email</label>

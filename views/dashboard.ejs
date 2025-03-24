@@ -8,6 +8,15 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove("fade-out");
+
+            const toggleBtn = document.getElementById("sidebarToggle");
+            const sidebar = document.querySelector(".sidebar");
+            const mainContent = document.querySelector(".main-content");
+
+            toggleBtn.addEventListener("click", () => {
+                sidebar.classList.toggle("collapsed");
+                mainContent.classList.toggle("expanded");
+            });
         });
 
         window.addEventListener("beforeunload", () => {
@@ -17,13 +26,15 @@
 </head>
 <body>
     <div class="sidebar">
+        <div class="toggle-btn" id="sidebarToggle">≡</div>
         <h2 class="logo">Stargled Panel</h2>
         <ul>
             <li class="active"><a href="#">Servers</a></li>
-            <li><a href="#">Account</a></li>
+            <li><a href="/account">Account</a></li>
             <% if (user.role === 'admin') { %>
                 <li><a href="/admin">Admin Panel</a></li>
             <% } %>
+            <li><a href="/logout">Logout</a></li>
         </ul>
     </div>
 
@@ -35,6 +46,10 @@
                     <option value="<%= server.id %>"><%= server.name %></option>
                 <% }); %>
             </select>
+            <% if (user.role === 'admin') { %>
+                <label for="viewAllServers">View All Servers</label>
+                <input type="checkbox" id="viewAllServers" <%= typeof viewAll !== 'undefined' && viewAll ? 'checked' : '' %> />
+            <% } %>
         </div>
 
         <div class="server-container">
@@ -69,6 +84,14 @@
             const serverId = this.value;
             if (serverId) {
                 window.location.href = `/server/${serverId}`;
+            }
+        });
+        document.addEventListener("DOMContentLoaded", () => {
+            const userRole = "<%= user.role %>";
+            if (userRole === 'admin') {
+                document.getElementById('viewAllServers').addEventListener('change', function() {
+                    window.location.href = this.checked ? '/dashboard?viewAll=true' : '/dashboard';
+                });
             }
         });
     </script>

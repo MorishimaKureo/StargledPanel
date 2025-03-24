@@ -4,37 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Console - <%= serverName %></title>
-    <style>
-        #console {
-            width: 100%;
-            height: 300px;
-            background: black;
-            color: lime;
-            font-family: monospace;
-            overflow-y: auto;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/console.css">
+    <link rel="stylesheet" href="/css/sidebar.css"> <!-- Pisahkan CSS -->
     <script>window.SERVER_NAME = "<%= serverName %>";</script>
 </head>
 <body>
-    <div class="topbar">
-        <h1>Console: <%= serverName %></h1>
-        <a href="/">Kembali ke Dashboard</a>
-        <a class="file" href="/server/<%= serverName %>/files/">File Manager</a>
+    <%- include('partials/consoleSidebar') %> <!-- Memasukkan sidebar -->
+    
+    <div class="main-content">
+        <div class="server-header">
+            <span class="server-ip"><%= server.ip %>:25565</span>
+            <div class="server-buttons">
+                <button class="start" onclick="sendCommand('start')">▶</button>
+                <button class="stop" onclick="sendCommand('stop')">⏹</button>
+                <button class="restart" onclick="sendCommand('restart')">🔄</button>
+            </div>
+        </div>
+        
+        <div class="console-container">
+            <div id="console"></div>
+            <div class="input-area">
+                <input type="text" id="commandInput" placeholder="Type a command..." onkeydown="handleEnter(event)">
+                <button onclick="sendCommand('command')">Send</button>
+            </div>
+        </div>
+        
+        <div class="status-container">
+            <div class="status-card">
+                <h3>CPU Usage</h3>
+                <p id="cpu">0%</p>
+            </div>
+            <div class="status-card">
+                <h3>Memory Usage</h3>
+                <p id="ram"><span id="ramPercentage">0%</span> / <%= serverMemoryLimit %> MB</p>
+            </div>
+            <div class="status-card">
+                <h3>Disk Usage</h3>
+                <p id="disk">0 MB</p>
+            </div>
+        </div>
     </div>
-    <div id="console"></div>
-    <div>
-        <p>CPU Usage: <span id="cpu">0%</span></p>
-        <p>RAM Usage: <span id="ram">0%</span></p>
-        <p>Disk Usage: <span id="disk">0 MB</span></p>
-    </div>
-    <button onclick="sendCommand('start')">Start</button>
-    <button onclick="sendCommand('stop')">Stop</button>
-    <button onclick="sendCommand('restart')">Restart</button>
-    <input type="text" id="commandInput" placeholder="Ketik perintah..." onkeydown="handleEnter(event)">
-    <button onclick="sendCommand('command')">Send</button>
+
+    <script src="/js/console.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (!<%- serverIsRunning %>) {
+                document.getElementById('console').innerHTML = '';
+                localStorage.removeItem('consoleLogs'); // Clear logs from local storage
+            }
+        });
+    </script>
 </body>
-<script src="/js/console.js"></script>
 </html>

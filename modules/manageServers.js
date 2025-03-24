@@ -4,6 +4,7 @@ const path = require("path");
 const { createServer } = require("./serverManager");
 const { isAuthenticated, isAdmin } = require("./auth");
 const { getServerSoftware, getSoftwareVersions, getServerSoftwareById } = require("./softwareDb");
+const { getUserServersWithDetails, getAllServersWithDetails } = require("./serverDb"); // Import the correct function
 
 const router = express.Router();
 const SERVERS_DIR = path.join(__dirname, "../servers");
@@ -70,6 +71,13 @@ router.post("/admin/manage-servers/delete-server", isAuthenticated, isAdmin, (re
     } else {
         res.status(404).send("Server tidak ditemukan");
     }
+});
+
+router.get("/dashboard", isAuthenticated, async (req, res) => {
+    const userId = req.session.user.id;
+    const viewAll = req.query.viewAll === 'true' && req.session.user.role === 'admin';
+    const servers = viewAll ? await getAllServersWithDetails() : await getUserServersWithDetails(userId);
+    res.render("dashboard", { user: req.session.user, servers, viewAll });
 });
 
 module.exports = router;

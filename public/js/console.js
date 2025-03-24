@@ -47,7 +47,8 @@ function connectWebSocket() {
 
         if (data.type === "stats") {
             document.getElementById("cpu").textContent = data.cpu + "%";
-            document.getElementById("ram").textContent = data.ram + "%";
+            document.getElementById("ramPercentage").textContent = data.ram + "%";
+            document.getElementById("ram").textContent = `${data.ram}% / ${serverMemoryLimit} MB`;
             document.getElementById("disk").textContent = data.disk + " MB";
         }
 

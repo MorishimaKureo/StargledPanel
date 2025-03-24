@@ -1,5 +1,5 @@
 const express = require("express");
-const { isAuthenticated, isAdmin } = require("./auth");
+const { isAuthenticated, isAdmin, logout } = require("./auth");
 const { addServerSoftware, getServerSoftware } = require("./softwareDb");
 const { v4: uuidv4 } = require("uuid");
 const { addUser } = require("./userDb");
@@ -42,5 +42,8 @@ router.post("/admin/add-user", isAuthenticated, isAdmin, (req, res) => {
         res.status(500).send("Error adding user: " + err.message);
     });
 });
+
+// Logout route
+router.get("/logout", isAuthenticated, logout);
 
 module.exports = router;

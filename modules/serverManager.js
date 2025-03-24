@@ -7,7 +7,7 @@ const { getServerSoftwareById, getDownloadUrl } = require("./softwareDb");
 const axios = require("axios");
 
 const log = new Log();
-const SERVERS_DIR = path.join(__dirname, "../servers");
+const SERVERS_DIR = path.resolve(__dirname, "../servers");
 
 let serverProcesses = {}; // Menyimpan proses server yang sedang berjalan
 let serverLogs = {}; // Menyimpan log untuk setiap server
@@ -19,7 +19,7 @@ function stopServer(serverName, ws, broadcastLog, callback) {
         serverProcesses[serverName].process.stdin.write("stop\n");
         serverProcesses[serverName].process.on("exit", () => {
             delete serverProcesses[serverName]; // Pastikan server dihapus lebih awal
-            serverLogs[serverName] = []; // Menghapus log ketika server berhenti
+            delete serverLogs[serverName]; // Menghapus log ketika server berhenti
             broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server berhenti
             broadcastLog(serverName, { type: "status", message: "Server berhenti." });
             ws.send(JSON.stringify({ type: "status", message: "Server telah berhenti." }));
@@ -35,9 +35,9 @@ function stopServer(serverName, ws, broadcastLog, callback) {
 
 // Fungsi untuk memulai server
 function startServer(serverName, ws, broadcastLog) {
-    const serverPath = path.join(SERVERS_DIR, serverName);
-    const jarPath = path.join(serverPath, "server.jar");
-    const configPath = path.join(serverPath, "config.json");
+    const serverPath = path.resolve(SERVERS_DIR, serverName);
+    const jarPath = path.resolve(serverPath, "server.jar");
+    const configPath = path.resolve(serverPath, "config.json");
     serverLogs[serverName] = [];
     broadcastLog(serverName, { type: "clear" }); // Menghapus tampilan konsol saat server baru dimulai
 
@@ -78,6 +78,15 @@ function startServer(serverName, ws, broadcastLog) {
         const message = data.toString();
         serverLogs[serverName].push(message);
         broadcastLog(serverName, { type: "error", message });
+
+        // Check for invalid or corrupt JAR file error
+        if (message.includes("Invalid or corrupt jarfile")) {
+            log.error(`Error: Invalid or corrupt jarfile for server ${serverName}`);
+            ws.send(JSON.stringify({ type: "error", message: "Error: Invalid or corrupt jarfile" }));
+            stopServer(serverName, ws, broadcastLog, () => {
+                log.info(`Server ${serverName} telah berhenti karena file JAR yang rusak.`);
+            });
+        }
     });
 
     serverProcess.on("exit", () => {
@@ -109,7 +118,7 @@ function restartServer(serverName, ws, broadcastLog) {
 // Fungsi untuk membuat server baru
 async function createServer(userId, serverName, softwareId, version, ramLimit) {
     const serverId = uuidv4();
-    const serverPath = path.join(SERVERS_DIR, serverName);
+    const serverPath = path.resolve(SERVERS_DIR, serverName);
 
     if (!fs.existsSync(serverPath)) {
         fs.mkdirSync(serverPath);
@@ -129,8 +138,8 @@ async function createServer(userId, serverName, softwareId, version, ramLimit) {
         throw new Error(`URL unduhan tidak valid untuk ${software.name} versi ${version}`);
     }
 
-    const tempJarPath = path.join(serverPath, "temp_server.jar");
-    const finalJarPath = path.join(serverPath, `server.jar`);
+    const tempJarPath = path.resolve(serverPath, "temp_server.jar");
+    const finalJarPath = path.resolve(serverPath, "server.jar");
 
     try {
         const response = await axios({
@@ -154,6 +163,22 @@ async function createServer(userId, serverName, softwareId, version, ramLimit) {
 
         // Rename the downloaded jar file to the final name
         fs.renameSync(tempJarPath, finalJarPath);
+
+        // Additional check to verify the JAR file integrity
+        const jarCheckProcess = spawn("java", ["-jar", finalJarPath, "--version"], {
+            cwd: serverPath,
+            shell: true
+        });
+
+        await new Promise((resolve, reject) => {
+            jarCheckProcess.on('exit', (code) => {
+                if (code !== 0) {
+                    reject(new Error("File JAR yang diunduh tidak valid atau rusak."));
+                } else {
+                    resolve();
+                }
+            });
+        });
 
         log.info(`Unduhan server.jar untuk ${serverName} selesai.`);
     } catch (error) {

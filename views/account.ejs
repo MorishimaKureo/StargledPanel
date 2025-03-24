@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Management</title>
+    <link rel="stylesheet" href="/css/account.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Account Management</h1>
+        <% if (error) { %>
+            <p class="error"><%= error %></p>
+        <% } %>
+        <form action="/account/update-username" method="post">
+            <label for="newUsername">New Username:</label>
+            <input type="text" id="newUsername" name="newUsername" required>
+            <button type="submit">Update Username</button>
+        </form>
+        <form action="/account/update-password" method="post">
+            <label for="newPassword">New Password:</label>
+            <input type="password" id="newPassword" name="newPassword" required>
+            <button type="submit">Update Password</button>
+        </form>
+        <a href="/">Back to Dashboard</a>
+    </div>
+</body>
+</html>

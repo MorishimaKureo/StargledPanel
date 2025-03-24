@@ -1,10 +1,19 @@
 const db = require("./db");
 const bcrypt = require("bcrypt");
 
-async function authenticateUser(username, password) {
+async function authenticateUser(req, username, password) {
     const user = await db.getUserByUsername(username);
     if (user && await bcrypt.compare(password, user.password)) {
-        return user;
+        req.session.user = user;
+        return new Promise((resolve, reject) => {
+            req.session.save(err => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(user);
+                }
+            });
+        });
     }
     return null;
 }
@@ -41,10 +50,22 @@ function isManager(req, res, next) {
     }
 }
 
+function logout(req, res) {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).send("Failed to log out");
+        }
+        res.clearCookie('connect.sid'); // Clear the session cookie
+        res.redirect("/login");
+    });
+
+}
+
 module.exports = {
     authenticateUser,
     checkAdminRole,
     isAuthenticated,
     isAdmin,
-    isManager
+    isManager,
+    logout
 };

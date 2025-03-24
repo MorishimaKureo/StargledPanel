@@ -109,9 +109,52 @@ async function getUserServersWithDetails(userId) {
     });
 }
 
+/**
+ * Mengambil semua server dengan detail.
+ */
+async function getAllServersWithDetails() {
+    return new Promise((resolve, reject) => {
+        db.all("SELECT server_name FROM user_servers", (err, rows) => {
+            if (err) return reject(err);
+            
+            const servers = rows.map(row => {
+                try {
+                    const serverPath = path.join(SERVERS_DIR, row.server_name);
+                    const configPath = path.join(serverPath, 'config.json');
+
+                    if (!fs.existsSync(configPath)) {
+                        console.warn(`Config file missing: ${configPath}`);
+                        return null;
+                    }
+
+                    const serverConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+                    return {
+                        id: row.server_name,
+                        name: serverConfig.name,
+                        ip: serverConfig.ip,
+                        ramUsed: serverConfig.ramUsed,
+                        ramTotal: serverConfig.ramTotal,
+                        cpuUsage: serverConfig.cpuUsage,
+                        diskUsed: serverConfig.diskUsed,
+                        diskTotal: serverConfig.diskTotal,
+                        status: serverConfig.status
+                    };
+                } catch (error) {
+                    console.error(`Error reading server config for ${row.server_name}:`, error);
+                    return null;
+                }
+            }).filter(server => server !== null);
+
+            resolve(servers);
+        });
+    });
+}
+
 module.exports = {
     addUserServer,
     deleteUserServer,
     getUserServers,
-    getUserServersWithDetails
+    getUserServersWithDetails,
+    getAllServersWithDetails // Export the function
 };

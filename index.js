@@ -20,6 +20,11 @@ const app = express();
 const PORT = 3000;
 const SERVERS_DIR = path.join(__dirname, "servers");
 
+// Create servers directory if it doesn't exist
+if (!fs.existsSync(SERVERS_DIR)) {
+    fs.mkdirSync(SERVERS_DIR);
+}
+
 const server = require("http").createServer(app);
 const wss = new WebSocket.Server({ server });
 
@@ -28,7 +33,7 @@ app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
-    secret: 'your_secret_key',
+    secret: 'hpiudsufbsob8hfb08b208b08fbn-082b3r08bdf8n8enf8b2-8bb8bdofnsoherfihhsd0bn',
     resave: false,
     saveUninitialized: false, // Set to false to avoid saving uninitialized sessions
     cookie: { secure: false } // Set to true if using HTTPS
@@ -50,6 +55,13 @@ cacheMiddleware.attach(app);
 // Login route
 const loginRoutes = require("./routes/login");
 app.use(loginRoutes);
+
+// Logout route
+const logoutRoutes = require("./routes/logout"); // Add this line
+app.use(logoutRoutes); // Add this line
+
+const accountRoutes = require("./routes/account"); // Add this line
+app.use(accountRoutes); // Add this line
 
 // Middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
@@ -73,7 +85,27 @@ app.get("/", isAuthenticated, async (req, res) => {
 // Halaman console per server
 app.get("/server/:id", isAuthenticated, (req, res) => {
     const serverId = req.params.id;
-    res.render("console", { serverName: serverId });
+    const serverPath = path.join(SERVERS_DIR, serverId);
+    const configPath = path.join(serverPath, "config.json");
+
+    if (fs.existsSync(configPath)) {
+        const serverConfig = require(configPath);
+        const serverIsRunning = !!serverProcesses[serverId];
+
+        // Clear logs if the server is not running
+        if (!serverIsRunning) {
+            serverLogs[serverId] = [];
+        }
+
+        res.render("console", { 
+            serverName: serverId, 
+            serverMemoryLimit: serverConfig.ramLimit || 1024, 
+            serverIsRunning,
+            server: serverConfig // Pass the serverConfig object
+        });
+    } else {
+        res.status(404).json({ error: "Server configuration not found." });
+    }
 });
 
 // Endpoint untuk mendapatkan log server

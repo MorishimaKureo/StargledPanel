@@ -1,0 +1,90 @@
+body {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.container {
+    flex-grow: 1; /* Allow the container to take up remaining space */
+    margin: 20px;
+    background: #1e1e2e;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto; /* Add vertical scroll if content overflows */
+    max-height: calc(100vh - 40px); /* Ensure the container does not exceed viewport height */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #333;
+}
+
+.search-bar input {
+    padding: 8px;
+    border-radius: 5px;
+    border: none;
+    background: #292929;
+    color: white;
+}
+
+.file-navigation {
+    margin: 15px 0;
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #bbb;
+    background: #333;
+    padding: 8px 12px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.file-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.file-list th, .file-list td {
+    padding: 10px;
+    text-align: left;
+}
+
+.file-list tr {
+    border-bottom: 1px solid #444;
+}
+
+.file-list tr:hover {
+    background: #2a2a3a;
+}
+
+.delete-btn {
+    background: #ff4b4b;
+    border: none;
+    padding: 5px 10px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.upload-section {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.upload-btn {
+    background: #4b8bff;
+    border: none;
+    padding: 8px 15px;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
