@@ -66,6 +66,16 @@ body {
     background: #2a2a3a;
 }
 
+.file-list a {
+    text-decoration: none;
+    color: #fff;
+}
+
+.file-list a:hover {
+    text-decoration: underline;
+    color: #4b8bff;
+}
+
 .delete-btn {
     background: #ff4b4b;
     border: none;

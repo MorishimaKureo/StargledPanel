@@ -23,6 +23,12 @@
             <% } else { %>
                 <a href="/server/<%= serverName %>" class="back-btn">🔙 Back to Console</a>
             <% } %>
+            <div class="upload-section">
+                <form action="/server/<%= serverName %>/upload/<%= relativePath %>" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="file">
+                    <button type="submit" class="upload-btn">Upload</button>
+                </form>
+            </div>
         </div>
 
         <div class="file-list">
@@ -37,36 +43,30 @@
                 </thead>
                 <tbody>
                     <% fileList.forEach(file => { %>
-                        <tr>
-                            <td>
-                                <% if (file.isDirectory) { %>
-                                    📁 <a href="/server/<%= serverName %>/files/<%= relativePath ? relativePath + '/' : '' %><%= file.name %></a>
-                                <% } else { %>
-                                    📄 <a href="/server/<%= serverName %>/edit/<%= relativePath ? relativePath + '/' : '' %><%= file.name %></a>
-                                <% } %>
-                            </td>
-                            <td><%= file.size %></td>
-                            <td><%= file.date %></td>
-                            <td>
-                                <form action="/server/<%= serverName %>/delete" method="POST" class="inline-form">
-                                    <input type="hidden" name="fileName" value="<%= file.name %>">
-                                    <input type="hidden" name="folderPath" value="<%= relativePath %>">
-                                    <input type="hidden" name="isDirectory" value="<%= file.isDirectory %>">
-                                    <button type="submit" class="delete-btn">🗑 Delete</button>
-                                </form>
-                            </td>
-                        </tr>
+                        <% if (file.name !== 'serverId.txt') { %>
+                            <tr>
+                                <td>
+                                    <% if (file.isDirectory) { %>
+                                        📁 <a href="/server/<%= serverName %>/files/<%= relativePath ? relativePath + '/' : '' %><%= file.name %>"><%= file.name %></a>
+                                    <% } else { %>
+                                        📄 <a href="/server/<%= serverName %>/edit/<%= relativePath ? relativePath + '/' : '' %><%= file.name %>"><%= file.name %></a>
+                                    <% } %>
+                                </td>
+                                <td><%= file.size %></td>
+                                <td><%= file.date %></td>
+                                <td>
+                                    <form action="/server/<%= serverName %>/delete" method="POST" class="inline-form">
+                                        <input type="hidden" name="fileName" value="<%= file.name %>">
+                                        <input type="hidden" name="folderPath" value="<%= relativePath %>">
+                                        <input type="hidden" name="isDirectory" value="<%= file.isDirectory %>">
+                                        <button type="submit" class="delete-btn">🗑 Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% } %>
                     <% }) %>
                 </tbody>
             </table>
-        </div>
-
-        <div class="upload-section">
-            <h2>Upload File</h2>
-            <form action="/server/<%= serverName %>/upload/<%= relativePath %>" method="POST" enctype="multipart/form-data">
-                <input type="file" name="file">
-                <button type="submit" class="upload-btn">Upload</button>
-            </form>
         </div>
     </div>
 </body>
